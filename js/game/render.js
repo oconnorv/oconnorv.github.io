@@ -151,7 +151,7 @@ export class Renderer {
     ctx.fillRect(FIELD.x, C.NET_Y - 1, FIELD.w, 4);
     ctx.fillStyle = '#c9d9ff';
     ctx.fillRect(FIELD.x, C.NET_Y - 1, FIELD.w, 1);
-    text(ctx, 'BACKUP', FIELD.x + 6, C.NET_Y - 9, 8, '#9fbcff', 'left', true);
+    text(ctx, 'BACKUP', FIELD.x + 6, C.NET_Y - 10, 10, '#9fbcff', 'left', true);
   }
 
   drawPaddle(g) {
@@ -235,15 +235,15 @@ export class Renderer {
         ctx.fillStyle = blinkOn ? WHITE : INK;
         ctx.fillRect(x - 2, y - 2, p.w + 4, p.h + 4);
         bevelRect(ctx, x, y, p.w, p.h, GOLD, '#fff3b0', '#a37800', 2);
-        drawDocIcon(ctx, x + 5, y + 3, 9, p.h - 6, WHITE);
-        text(ctx, page ? page.pill : 'FILE', x + p.w / 2 + 6, p.y + 0.5, 8, INK);
+        drawDocIcon(ctx, x + 6, y + 4, 11, p.h - 8, WHITE);
+        text(ctx, page ? page.pill : 'FILE', x + p.w / 2 + 7, p.y + 0.5, 11, INK);
       } else {
         const def = POWERUPS[p.kind];
         const col = def.good ? def.color : RED;
         ctx.fillStyle = INK;
         ctx.fillRect(x - 1, y - 1, p.w + 2, p.h + 2);
         bevelRect(ctx, x, y, p.w, p.h, col, lighten(col, 0.55), darken(col, 0.45), 2);
-        text(ctx, def.label, p.x, p.y + 0.5, 8, !def.good || isDark(col) ? WHITE : INK);
+        text(ctx, def.label, p.x, p.y + 0.5, 11, !def.good || isDark(col) ? WHITE : INK);
       }
     }
   }
@@ -291,7 +291,7 @@ export class Renderer {
     const ctx = this.ctx;
     for (const q of g.fx.texts) {
       if (q.life - q.t < 0.3 && Math.floor(q.t * 16) % 2) continue;
-      text(ctx, q.str, Math.round(q.x), Math.round(q.y), 8, q.color, 'center', true);
+      text(ctx, q.str, Math.round(q.x), Math.round(q.y), 12, q.color, 'center', true);
     }
   }
 
@@ -350,30 +350,30 @@ export class Renderer {
 
   // ------------------------------------------------------------ HUD + screens
 
-  // Two rows: small labels on top, big values underneath.
+  // Two rows: labels on top, big values underneath, in left-aligned groups.
   drawHud(g) {
     const ctx = this.ctx;
-    const LY = 13;
-    const VY = 32;
-    label(ctx, 'SCORE', 22, LY);
-    text(ctx, String(g.score).padStart(7, '0'), 22, VY, 16, WHITE, 'left');
+    const LY = 15;
+    const VY = 39;
+    label(ctx, 'SCORE', 20, LY);
+    text(ctx, String(g.score).padStart(7, '0'), 20, VY, 20, WHITE, 'left');
     label(ctx, 'HI', 150, LY);
-    text(ctx, String(Math.max(g.hi, g.score)).padStart(7, '0'), 150, VY, 16, GOLD, 'left');
-    label(ctx, 'LEVEL', 400, LY, 'center');
-    const lvl = g.mode === 'title' ? '-- / 12' : `${String(g.levelIndex + 1).padStart(2, '0')} / 12`;
-    text(ctx, lvl, 400, VY, 16, CYAN, 'center');
-    label(ctx, 'LIVES', 476, LY);
+    text(ctx, String(Math.max(g.hi, g.score)).padStart(7, '0'), 150, VY, 20, GOLD, 'left');
+    label(ctx, 'LEVEL', 280, LY);
+    const lvl = g.mode === 'title' ? '--/12' : `${String(g.levelIndex + 1).padStart(2, '0')}/12`;
+    text(ctx, lvl, 280, VY, 20, CYAN, 'left');
+    label(ctx, 'LIVES', 384, LY);
     const lives = g.mode === 'title' ? C.START_LIVES : g.lives;
     const shown = Math.min(lives, 4);
-    for (let i = 0; i < shown; i++) drawMiniPaddle(ctx, 476 + i * 21, VY);
-    if (lives > shown) text(ctx, `+${lives - shown}`, 476 + shown * 21, VY, 10, WHITE, 'left');
-    label(ctx, 'FILES', 588, LY);
-    let x = 588;
+    for (let i = 0; i < shown; i++) drawMiniPaddle(ctx, 384 + i * 25, VY);
+    if (lives > shown) text(ctx, `+${lives - shown}`, 384 + shown * 25, VY, 12, WHITE, 'left');
+    label(ctx, 'FILES', 512, LY);
+    let x = 512;
     for (const p of this.pages) {
       const on = g.found.has(p.id);
-      drawDocIcon(ctx, x, VY - 7, 10, 14, on ? GOLD : '#3a4466');
-      text(ctx, p.hud, x + 14, VY, 10, on ? GOLD : '#6b779c', 'left');
-      x += 14 + ctx.measureText(p.hud).width + 9;
+      drawDocIcon(ctx, x, VY - 8, 12, 16, on ? GOLD : '#3a4466');
+      text(ctx, p.hud, x + 16, VY, 12, on ? GOLD : '#7783a8', 'left');
+      x += 16 + ctx.measureText(p.hud).width + 11;
     }
   }
 
@@ -385,21 +385,22 @@ export class Renderer {
   drawTitle(g) {
     const ctx = this.ctx;
     this.dim(0.3);
-    bigText(ctx, 'BITSTREAM', W / 2, 176, 66, CYAN);
-    text(ctx, 'A   D I G I T A L   P R E S E R V A T I O N   B R I C K - B R E A K E R', W / 2, 232, 8, WHITE, 'center', true);
-    text(ctx, '4 FILES ARE HIDDEN IN THE BRICKS. RECOVER THEM.', W / 2, 270, 10, GOLD, 'center', true);
-    if (blink(g.t)) text(ctx, 'PRESS SPACE OR CLICK TO START', W / 2, 336, 12, WHITE, 'center', true);
-    if (g.maxLevel > 1) text(ctx, `PRESS C TO CONTINUE FROM LEVEL ${String(g.maxLevel).padStart(2, '0')}`, W / 2, 364, 10, CYAN, 'center', true);
+    bigText(ctx, 'BITSTREAM', W / 2, 150, 66, CYAN);
+    text(ctx, 'A DIGITAL PRESERVATION BRICK-BREAKER', W / 2, 212, 16, WHITE, 'center', true);
+    text(ctx, '4 FILES ARE HIDDEN IN THE BRICKS.', W / 2, 252, 18, GOLD, 'center', true);
+    text(ctx, 'RECOVER THEM.', W / 2, 278, 18, GOLD, 'center', true);
+    if (blink(g.t)) text(ctx, 'PRESS SPACE OR CLICK TO START', W / 2, 330, 22, WHITE, 'center', true);
+    if (g.maxLevel > 1) text(ctx, `PRESS C TO CONTINUE FROM LEVEL ${String(g.maxLevel).padStart(2, '0')}`, W / 2, 364, 16, CYAN, 'center', true);
     const rows = [
       ['ARROWS / A D', 'MOVE'],
       ['SPACE / CLICK', 'LAUNCH + FIRE'],
       ['P', 'PAUSE'],
       ['M', 'SOUND ON/OFF'],
     ];
-    panel(ctx, 250, 410, 300, 106);
+    panel(ctx, 175, 396, 450, 156);
     rows.forEach(([k, v], i) => {
-      text(ctx, k, 390, 431 + i * 22, 8, CYAN, 'right');
-      text(ctx, v, 410, 431 + i * 22, 8, WHITE, 'left');
+      text(ctx, k, 384, 425 + i * 33, 16, CYAN, 'right');
+      text(ctx, v, 408, 425 + i * 33, 16, WHITE, 'left');
     });
   }
 
@@ -408,47 +409,48 @@ export class Renderer {
     const late = b.life - b.t < 0.3;
     if (late && Math.floor(b.t * 16) % 2) return; // blink out
     if (b.kind === 'level') {
-      const y = 360;
-      panel(ctx, 150, y - 50, 500, 100);
-      text(ctx, b.title, W / 2, y - 26, 12, CYAN, 'center', true);
-      bigText(ctx, b.sub, W / 2, y + 6, b.sub.length > 24 ? 18 : 26, WHITE);
-      text(ctx, 'SPACE / CLICK TO LAUNCH', W / 2, y + 36, 8, DIM, 'center');
+      const y = 362;
+      panel(ctx, 130, y - 66, 540, 132);
+      text(ctx, b.title, W / 2, y - 40, 16, CYAN, 'center', true);
+      bigText(ctx, b.sub, W / 2, y - 3, 28, WHITE, 496);
+      text(ctx, 'SPACE / CLICK TO LAUNCH', W / 2, y + 40, 14, '#b5c0de', 'center', true);
     } else if (b.kind === 'clear') {
-      bigText(ctx, b.title, W / 2, 328, 30, GOLD);
-      text(ctx, b.sub, W / 2, 372, 12, WHITE, 'center', true);
+      bigText(ctx, b.title, W / 2, 326, 34, GOLD);
+      text(ctx, b.sub, W / 2, 374, 18, WHITE, 'center', true);
     } else if (b.kind === 'life') {
-      text(ctx, b.title, W / 2, 400, 16, '#ff7d8c', 'center', true);
-      text(ctx, b.sub, W / 2, 426, 8, '#c9d6ee', 'center', true);
+      text(ctx, b.title, W / 2, 396, 22, '#ff7d8c', 'center', true);
+      text(ctx, b.sub, W / 2, 428, 14, '#c9d6ee', 'center', true);
     } else if (b.kind === 'pill') {
-      text(ctx, b.title, W / 2, 470, 10, b.color, 'center', true);
-      text(ctx, b.sub, W / 2, 490, 8, WHITE, 'center', true);
+      text(ctx, b.title, W / 2, 464, 16, b.color, 'center', true);
+      text(ctx, b.sub, W / 2, 490, 14, WHITE, 'center', true);
     }
   }
 
   drawPaused(g) {
     this.dim(g.pauseReason === 'file' ? 0.75 : 0.62);
     if (g.pauseReason === 'file') return; // the "file recovered" dialog sits on top
-    bigText(this.ctx, 'PAUSED', W / 2, 288, 44, WHITE);
-    if (blink(g.t)) text(this.ctx, 'PRESS P TO RESUME', W / 2, 340, 12, CYAN, 'center', true);
+    bigText(this.ctx, 'PAUSED', W / 2, 286, 48, WHITE);
+    if (blink(g.t)) text(this.ctx, 'PRESS P TO RESUME', W / 2, 346, 20, CYAN, 'center', true);
   }
 
   drawGameOver(g) {
     const ctx = this.ctx;
     this.dim(0.72);
-    bigText(ctx, 'CHECKSUM MISMATCH', W / 2, 248, 32, RED);
-    text(ctx, 'GAME OVER', W / 2, 292, 12, '#ff9aa6', 'center', true);
-    text(ctx, `SCORE ${g.score}`, W / 2, 330, 12, WHITE, 'center', true);
-    if (blink(g.t)) text(ctx, `SPACE / CLICK: CONTINUE FROM LEVEL ${String(g.levelIndex + 1).padStart(2, '0')}`, W / 2, 390, 10, CYAN, 'center', true);
-    text(ctx, '(YOUR SCORE STARTS OVER)', W / 2, 412, 8, DIM, 'center');
+    bigText(ctx, 'CHECKSUM MISMATCH', W / 2, 236, 36, RED);
+    text(ctx, 'GAME OVER', W / 2, 288, 18, '#ff9aa6', 'center', true);
+    text(ctx, `SCORE ${g.score}`, W / 2, 330, 20, WHITE, 'center', true);
+    if (blink(g.t)) text(ctx, `SPACE / CLICK: CONTINUE FROM LEVEL ${String(g.levelIndex + 1).padStart(2, '0')}`, W / 2, 392, 16, CYAN, 'center', true);
+    text(ctx, '(YOUR SCORE STARTS OVER)', W / 2, 422, 14, '#b5c0de', 'center', true);
   }
 
   drawWin(g) {
     const ctx = this.ctx;
     this.dim(0.45);
-    bigText(ctx, 'ARCHIVE PRESERVED', W / 2, 228, 36, GOLD);
-    text(ctx, 'ALL 12 LEVELS CLEARED. EVERY BIT ACCOUNTED FOR.', W / 2, 276, 10, WHITE, 'center', true);
-    text(ctx, `FINAL SCORE ${g.score}`, W / 2, 316, 14, CYAN, 'center', true);
-    if (blink(g.t)) text(ctx, 'SPACE / CLICK TO PLAY AGAIN', W / 2, 388, 10, WHITE, 'center', true);
+    bigText(ctx, 'ARCHIVE PRESERVED', W / 2, 222, 40, GOLD);
+    text(ctx, 'ALL 12 LEVELS CLEARED.', W / 2, 276, 18, WHITE, 'center', true);
+    text(ctx, 'EVERY BIT ACCOUNTED FOR.', W / 2, 302, 18, WHITE, 'center', true);
+    text(ctx, `FINAL SCORE ${g.score}`, W / 2, 346, 22, CYAN, 'center', true);
+    if (blink(g.t)) text(ctx, 'SPACE / CLICK TO PLAY AGAIN', W / 2, 404, 18, WHITE, 'center', true);
   }
 }
 
@@ -483,13 +485,18 @@ function text(ctx, str, x, y, size, color, align = 'center', shadow = false) {
 }
 
 function label(ctx, str, x, y, align = 'left') {
-  text(ctx, str, x, y, 10, '#9ba7ca', align);
+  text(ctx, str, x, y, 12, '#a4afd0', align);
 }
 
 // Big headline: flat face colour, dark outline, hard offset shadow.
-function bigText(ctx, str, x, y, size, face) {
+function bigText(ctx, str, x, y, size, face, maxW = W - 90) {
   ctx.save();
   ctx.font = `700 ${size}px ${FONT}`;
+  const wide = ctx.measureText(str).width;
+  if (wide > maxW) {
+    size = Math.floor((size * maxW) / wide);
+    ctx.font = `700 ${size}px ${FONT}`;
+  }
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.lineJoin = 'miter';
@@ -682,10 +689,10 @@ function drawDocIcon(ctx, x, y, w, h, color) {
 
 function drawMiniPaddle(ctx, x, y) {
   ctx.fillStyle = '#c3c9d4';
-  ctx.fillRect(x, y - 3, 17, 7);
+  ctx.fillRect(x, y - 4, 20, 8);
   ctx.fillStyle = CYAN;
-  ctx.fillRect(x, y - 3, 4, 7);
-  ctx.fillRect(x + 13, y - 3, 4, 7);
+  ctx.fillRect(x, y - 4, 5, 8);
+  ctx.fillRect(x + 15, y - 4, 5, 8);
 }
 
 function pixelStar(ctx, x, y, color) {

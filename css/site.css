@@ -15,14 +15,14 @@
   --dim: #8b96b8;
   --pixel: 'Silkscreen', 'Courier New', monospace;
   --ui: Verdana, Tahoma, Geneva, sans-serif;
-  --side-w: 170px;   /* the column beside the game that holds "this is annoying" */
+  --side-w: 190px;   /* the column beside the game that holds "this is annoying" */
   --side-gap: 16px;
-  --panel-h: 64px;   /* height of that panel when it sits under the game instead */
+  --panel-h: 72px;   /* height of that panel when it sits under the game instead */
 }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; }
-body { background: var(--bg); color: var(--text); font: 13px/1.6 var(--ui); }
+body { background: var(--bg); color: var(--text); font: 15px/1.6 var(--ui); }
 a { color: var(--cyan); }
 a:hover { color: #fff; }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
@@ -47,8 +47,8 @@ a.wordmark:hover { color: #7fe4ff; }
   border: 2px solid;
   border-color: #b9f1ff #0b6d88 #0b6d88 #b9f1ff;
   border-radius: 0;
-  padding: 7px 13px;
-  font: 400 10px/1 var(--pixel);
+  padding: 8px 14px;
+  font: 400 12px/1 var(--pixel);
   letter-spacing: .6px;
   color: var(--ink);
   background: var(--cyan);
@@ -123,9 +123,9 @@ body.home {
   appearance: none;
   border: 1px solid var(--line);
   border-radius: 0;
-  padding: 5px 12px;
-  font: 12px/1.2 var(--ui);
-  color: var(--dim);
+  padding: 6px 14px;
+  font: 14px/1.2 var(--ui);
+  color: #a9b4d4;
   background: var(--panel);
   cursor: pointer;
   white-space: nowrap;
@@ -137,8 +137,8 @@ body.home {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
-  font: 12px/1.4 var(--ui);
+  gap: 8px;
+  font: 14px/1.4 var(--ui);
   white-space: nowrap;
 }
 .links.shown { visibility: visible; }
@@ -156,12 +156,12 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
   .topbar { height: 48px; padding: 0 10px; }
   .wordmark { font-size: 14px; line-height: 1.15; white-space: normal; }
   #stage { padding: 0 8px 8px; }
-  body.layout-bottom .links { gap: 12px; font-size: 11px; }
+  body.layout-bottom .links { gap: 12px; font-size: 12px; }
 }
 @media (max-height: 520px) {
   .topbar { height: 40px; }
   .wordmark { font-size: 16px; }
-  .annoying { padding: 3px 12px; font-size: 11px; }
+  .annoying { padding: 4px 12px; font-size: 12px; }
 }
 
 /* Phones held sideways: header in a column on the left, game, then the panel on the right. */
@@ -173,6 +173,8 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
   .top-buttons { flex-direction: column; align-items: flex-start; }
   #stage { padding: 0 8px 0 0; }
   .play { grid-template-columns: auto var(--side-w); align-items: center; }
+  .annoying, .links { font-size: 12px; }
+  .btn { font-size: 10px; }
   .play-spacer { display: none; }
 }
 
@@ -195,7 +197,7 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
   box-shadow: 0 0 0 2px var(--ink), 8px 8px 0 0 rgba(0, 0, 0, .65);
 }
 .dlg-titlebar {
-  font: 11px/1 var(--pixel);
+  font: 13px/1 var(--pixel);
   letter-spacing: 2px;
   color: var(--ink);
   background: var(--gold);
@@ -213,10 +215,10 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
     var(--gold);
 }
 .dlg-file { font: 700 22px/1.1 var(--pixel); color: #fff; text-shadow: 2px 2px 0 var(--shadow); word-break: break-all; }
-.dlg-desc { color: var(--dim); margin-top: 4px; }
+.dlg-desc { color: #a9b4d4; margin-top: 4px; font-size: 15px; }
 .dlg-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; padding: 16px 20px 8px; }
-.dlg-buttons .btn { font-size: 11px; padding: 9px 14px; }
-.dlg-hint { text-align: center; font: 8px/1.4 var(--pixel); letter-spacing: 1px; color: var(--dim); padding: 4px 10px 14px; }
+.dlg-buttons .btn { font-size: 13px; padding: 10px 16px; }
+.dlg-hint { text-align: center; font: 10px/1.4 var(--pixel); letter-spacing: 1px; color: #a9b4d4; padding: 4px 10px 14px; }
 @media (max-width: 560px) {
   .dlg-body { padding: 14px 14px 4px; }
   .dlg-file { font-size: 16px; }
@@ -236,7 +238,7 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
   border-bottom: 2px solid var(--line);
 }
 .page-head .wordmark { font-size: 22px; }
-.page-head .file-name { font: 10px/1 var(--pixel); color: var(--gold); letter-spacing: 1.5px; display: block; margin-top: 8px; }
+.page-head .file-name { font: 12px/1 var(--pixel); color: var(--gold); letter-spacing: 1.5px; display: block; margin-top: 8px; }
 .panel {
   border: 2px solid var(--line);
   background: var(--panel);
@@ -245,7 +247,7 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
 }
 .page h1 { font: 700 26px/1.2 var(--pixel); margin: 0 0 6px; color: #fff; text-shadow: 3px 3px 0 var(--shadow); }
 .page h2 {
-  font: 700 13px/1.3 var(--pixel);
+  font: 700 15px/1.3 var(--pixel);
   letter-spacing: 1.5px;
   color: var(--cyan);
   margin: 26px 0 10px;
@@ -256,17 +258,17 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
 .page .lede { color: var(--dim); margin: 0; }
 .page ul { padding-left: 20px; }
 .page li { margin: 4px 0; }
-.entry { display: grid; grid-template-columns: 110px 1fr; gap: 4px 16px; margin: 10px 0; }
-.entry .when { color: var(--gold); font: 10px/1.9 var(--pixel); letter-spacing: .5px; }
+.entry { display: grid; grid-template-columns: 136px 1fr; gap: 4px 16px; margin: 10px 0; }
+.entry .when { color: var(--gold); font: 12px/1.9 var(--pixel); letter-spacing: .5px; }
 .entry .what strong { color: #fff; }
 .entry .what span { color: var(--dim); }
 @media (max-width: 560px) {
   .panel { padding: 18px 16px; }
   .entry { grid-template-columns: 1fr; gap: 0; }
 }
-.edit-note { border: 1px dashed var(--gold); color: var(--gold); padding: 8px 12px; font-size: 12px; margin: 0 0 14px; }
-.page-foot { margin-top: 22px; text-align: center; font: 8px/1.6 var(--pixel); letter-spacing: 1px; color: #6f7a9c; }
-.email-box { font: 700 16px/1.4 var(--pixel); color: #fff; letter-spacing: .5px; }
+.edit-note { border: 1px dashed var(--gold); color: var(--gold); padding: 8px 12px; font-size: 14px; margin: 0 0 14px; }
+.page-foot { margin-top: 22px; text-align: center; font: 10px/1.6 var(--pixel); letter-spacing: 1px; color: #6f7a9c; }
+.email-box { font: 700 18px/1.4 var(--pixel); color: #fff; letter-spacing: .5px; }
 
 /* ---------------------------------------------------------------- printing the CV: plain black on white */
 @media print {

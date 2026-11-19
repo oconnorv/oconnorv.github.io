@@ -2,7 +2,7 @@
 // the renderer scales it to whatever size the canvas ends up on screen.
 export const W = 800;
 export const H = 600;
-export const HUD_H = 46;           // top bar with score, level, lives and files
+export const HUD_H = 54;           // top bar with score, level, lives and files
 export const WALL = 14;
 export const FIELD = { x: WALL, y: HUD_H + 10, w: W - WALL * 2, h: H - HUD_H - 10 };
 export const BRICK_TOP = FIELD.y + 36;
@@ -21,9 +21,9 @@ export const RAMP_TIME = 75;           // seconds for the ball to ramp from star
 export const MAX_BALLS = 9;
 
 export const NET_Y = 586;              // where the BACKUP barrier sits
-export const PILL_W = 64;
-export const FILE_PILL_W = 88;
-export const PILL_H = 18;
+export const PILL_W = 78;
+export const FILE_PILL_W = 112;
+export const PILL_H = 22;
 export const PILL_SPEED = 150;
 export const MAX_FALLING_PILLS = 3;
 export const LASER_SPEED = 900;
