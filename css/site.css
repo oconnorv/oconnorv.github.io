@@ -147,15 +147,16 @@ body.home {
   appearance: none;
   border: 1px solid var(--ann-border);
   border-radius: 0;
-  padding: 6px 14px;
-  font: 14px/1.2 var(--ui);
+  padding: 7px 12px;
+  font: 13px/1.3 var(--pixel);
+  letter-spacing: .5px;
   color: var(--ann-fg);
   background: var(--ann-bg);
   cursor: pointer;
   white-space: nowrap;
 }
 .annoying:hover { color: var(--ann-hover); }
-.annoying[aria-expanded='true'] { color: var(--ann-hover); font-weight: bold; }
+.annoying[aria-expanded='true'] { color: var(--ann-hover); }
 .links {
   visibility: hidden;
   display: flex;
@@ -185,7 +186,7 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
 @media (max-height: 520px) {
   .topbar { height: 40px; }
   .wordmark { font-size: 16px; }
-  .annoying { padding: 4px 12px; font-size: 12px; }
+  .annoying { padding: 5px 10px; font-size: 12px; }
 }
 
 /* Phones held sideways: header in a column on the left, game, then the panel on the right. */
@@ -197,7 +198,8 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
   .top-buttons { flex-direction: column; align-items: flex-start; }
   #stage { padding: 0 8px 0 0; }
   .play { grid-template-columns: auto var(--side-w); align-items: center; }
-  .annoying, .links { font-size: 12px; }
+  .links { font-size: 12px; }
+  .annoying { font-size: 11px; padding: 5px 8px; white-space: normal; max-width: 100%; text-align: left; }
   .btn { font-size: 10px; }
   .play-spacer { display: none; }
   .credit { left: 8px; bottom: 8px; max-width: 120px; font-size: 12px; }

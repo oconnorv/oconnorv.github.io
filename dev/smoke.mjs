@@ -152,6 +152,7 @@ try {
           && !overlaps(c) && !touches(c, b) && !touches(c, l),
         place: b.left >= f.right - 1 && b.bottom <= f.bottom + 1 ? 'beside' : b.top >= f.bottom - 1 ? 'below' : 'other',
         clear: !overlaps(b) && !overlaps(l),
+        buttonOnScreen: b.left >= 0 && b.top >= 0 && b.right <= innerWidth + 1 && b.bottom <= innerHeight + 1,
         noScroll: d.scrollHeight <= innerHeight + 1 && d.scrollWidth <= innerWidth + 1,
         frameVisible: f.top >= 0 && f.left >= 0 && f.bottom <= innerHeight + 1 && f.right <= innerWidth + 1 && f.width > 200,
         linksVisible: l.bottom <= innerHeight + 1 && l.right <= innerWidth + 1 && l.left >= 0 && l.top >= 0,
@@ -166,6 +167,7 @@ try {
       `${name}: no scrolling, game (${before.frame}) and revealed links fit on screen`);
     ok(before.place === expect && after.clear, `${name}: "this is annoying" sits ${expect} the game and never covers it (${before.place})`);
     ok(before.credit && after.credit, `${name}: the credit sits bottom-left without covering the game or the links`);
+    ok(before.buttonOnScreen && after.buttonOnScreen, `${name}: "this is annoying" / "yeah, but it's fun" is fully on screen`);
     if (name.startsWith('laptop')) {
       const credit = await page.evaluate(() => {
         const el = document.querySelector('.credit');
