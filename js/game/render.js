@@ -350,25 +350,31 @@ export class Renderer {
 
   // ------------------------------------------------------------ HUD + screens
 
+  // Two rows: small labels on top, big values underneath.
   drawHud(g) {
     const ctx = this.ctx;
-    label(ctx, 'SCORE', 24, 11);
-    text(ctx, String(g.score).padStart(7, '0'), 24, 25, 12, WHITE, 'left');
-    label(ctx, 'HI', 148, 11);
-    text(ctx, String(Math.max(g.hi, g.score)).padStart(7, '0'), 148, 25, 12, GOLD, 'left');
-    label(ctx, 'LEVEL', 400, 11, 'center');
+    const LY = 13;
+    const VY = 32;
+    label(ctx, 'SCORE', 22, LY);
+    text(ctx, String(g.score).padStart(7, '0'), 22, VY, 16, WHITE, 'left');
+    label(ctx, 'HI', 150, LY);
+    text(ctx, String(Math.max(g.hi, g.score)).padStart(7, '0'), 150, VY, 16, GOLD, 'left');
+    label(ctx, 'LEVEL', 400, LY, 'center');
     const lvl = g.mode === 'title' ? '-- / 12' : `${String(g.levelIndex + 1).padStart(2, '0')} / 12`;
-    text(ctx, lvl, 400, 25, 12, CYAN, 'center');
-    label(ctx, 'LIVES', 488, 11);
+    text(ctx, lvl, 400, VY, 16, CYAN, 'center');
+    label(ctx, 'LIVES', 476, LY);
     const lives = g.mode === 'title' ? C.START_LIVES : g.lives;
-    for (let i = 0; i < Math.min(lives, 7); i++) drawMiniPaddle(ctx, 488 + i * 16, 20);
-    label(ctx, 'FILES', 604, 11);
-    this.pages.forEach((p, i) => {
-      const x = 604 + i * 46;
+    const shown = Math.min(lives, 4);
+    for (let i = 0; i < shown; i++) drawMiniPaddle(ctx, 476 + i * 21, VY);
+    if (lives > shown) text(ctx, `+${lives - shown}`, 476 + shown * 21, VY, 10, WHITE, 'left');
+    label(ctx, 'FILES', 588, LY);
+    let x = 588;
+    for (const p of this.pages) {
       const on = g.found.has(p.id);
-      drawDocIcon(ctx, x, 17, 8, 11, on ? GOLD : '#2b3350');
-      text(ctx, p.hud, x + 11, 23, 8, on ? GOLD : '#4a5578', 'left');
-    });
+      drawDocIcon(ctx, x, VY - 7, 10, 14, on ? GOLD : '#3a4466');
+      text(ctx, p.hud, x + 14, VY, 10, on ? GOLD : '#6b779c', 'left');
+      x += 14 + ctx.measureText(p.hud).width + 9;
+    }
   }
 
   dim(a = 0.6) {
@@ -477,7 +483,7 @@ function text(ctx, str, x, y, size, color, align = 'center', shadow = false) {
 }
 
 function label(ctx, str, x, y, align = 'left') {
-  text(ctx, str, x, y, 8, DIM, align);
+  text(ctx, str, x, y, 10, '#9ba7ca', align);
 }
 
 // Big headline: flat face colour, dark outline, hard offset shadow.
@@ -676,10 +682,10 @@ function drawDocIcon(ctx, x, y, w, h, color) {
 
 function drawMiniPaddle(ctx, x, y) {
   ctx.fillStyle = '#c3c9d4';
-  ctx.fillRect(x, y - 2, 13, 5);
+  ctx.fillRect(x, y - 3, 17, 7);
   ctx.fillStyle = CYAN;
-  ctx.fillRect(x, y - 2, 3, 5);
-  ctx.fillRect(x + 10, y - 2, 3, 5);
+  ctx.fillRect(x, y - 3, 4, 7);
+  ctx.fillRect(x + 13, y - 3, 4, 7);
 }
 
 function pixelStar(ctx, x, y, color) {

@@ -2,7 +2,7 @@
 // the renderer scales it to whatever size the canvas ends up on screen.
 export const W = 800;
 export const H = 600;
-export const HUD_H = 34;
+export const HUD_H = 46;           // top bar with score, level, lives and files
 export const WALL = 14;
 export const FIELD = { x: WALL, y: HUD_H + 10, w: W - WALL * 2, h: H - HUD_H - 10 };
 export const BRICK_TOP = FIELD.y + 36;
