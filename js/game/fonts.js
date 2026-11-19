@@ -7,13 +7,19 @@ export const FONTS = {
     family: 'Silkscreen, "Courier New", monospace', scale: 1, regular: 400, bold: 700, heavy: 700,
     load: ['8px Silkscreen', '700 8px Silkscreen'],
   },
-  orbitron: {
-    family: 'Orbitron, Verdana, sans-serif', scale: 0.9, regular: 500, bold: 700, heavy: 900,
-    load: ['500 10px Orbitron', '700 10px Orbitron', '900 10px Orbitron'],
+  // Scales were measured against Silkscreen's capital height, then set ~10% larger since these fonts
+  // are narrower and have room.
+  pixelify: {
+    family: '"Pixelify Sans", Silkscreen, monospace', scale: 1.08, regular: 500, bold: 700, heavy: 700,
+    load: ['500 10px "Pixelify Sans"', '700 10px "Pixelify Sans"'],
   },
-  mono: {
-    family: '"Share Tech Mono", "Courier New", monospace', scale: 1.15, regular: 400, bold: 400, heavy: 400,
-    load: ['10px "Share Tech Mono"'],
+  vt323: {
+    family: 'VT323, "Courier New", monospace', scale: 1.3, regular: 400, bold: 400, heavy: 400,
+    load: ['10px VT323'],
+  },
+  dotgothic: {
+    family: 'DotGothic16, Silkscreen, monospace', scale: 0.85, regular: 400, bold: 400, heavy: 400,
+    load: ['10px DotGothic16'],
   },
 };
 

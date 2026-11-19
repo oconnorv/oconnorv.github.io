@@ -44,7 +44,7 @@ const stamp = spawnSync(process.execPath, [path.join(root, 'dev', 'stamp.mjs'), 
 ok(stamp.status === 0, `version tags are up to date${stamp.status ? ` (${stamp.stderr.trim()})` : ''}`);
 
 const browser = await chromium.launch();
-// FONT=orbitron (or mono, pixel) runs every check with that display font.
+// FONT=pixelify (or vt323, dotgothic, pixel) runs every check with that display font.
 if (process.env.FONT) {
   const newContext = browser.newContext.bind(browser);
   browser.newContext = async (opts) => {

@@ -2,10 +2,10 @@
    solid colours, square corners, bevelled edges, hard shadows. */
 @font-face { font-family: 'Silkscreen'; src: url('../fonts/silkscreen-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
 @font-face { font-family: 'Silkscreen'; src: url('../fonts/silkscreen-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }
-@font-face { font-family: 'Orbitron'; src: url('../fonts/orbitron-500.woff2') format('woff2'); font-weight: 400 500; font-display: swap; }
-@font-face { font-family: 'Orbitron'; src: url('../fonts/orbitron-700.woff2') format('woff2'); font-weight: 600 700; font-display: swap; }
-@font-face { font-family: 'Orbitron'; src: url('../fonts/orbitron-900.woff2') format('woff2'); font-weight: 800 900; font-display: swap; }
-@font-face { font-family: 'Share Tech Mono'; src: url('../fonts/share-tech-mono-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Pixelify Sans'; src: url('../fonts/pixelify-sans-500.woff2') format('woff2'); font-weight: 400 500; font-display: swap; }
+@font-face { font-family: 'Pixelify Sans'; src: url('../fonts/pixelify-sans-700.woff2') format('woff2'); font-weight: 600 700; font-display: swap; }
+@font-face { font-family: 'VT323'; src: url('../fonts/vt323-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'DotGothic16'; src: url('../fonts/dotgothic16-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
 
 :root {
   /* The display font (header, buttons, links, headings; the game's own text uses js/game/fonts.js).
@@ -54,8 +54,9 @@
 }
 
 /* Font options for comparing (<html data-font="...">). */
-[data-font='orbitron'] { --display: 'Orbitron', Verdana, sans-serif; --display-scale: .9; --display-regular: 500; --display-bold: 700; }
-[data-font='mono'] { --display: 'Share Tech Mono', 'Courier New', monospace; --display-scale: 1.15; --display-regular: 400; --display-bold: 400; }
+[data-font='pixelify'] { --display: 'Pixelify Sans', 'Silkscreen', monospace; --display-scale: 1.08; --display-regular: 500; --display-bold: 700; }
+[data-font='vt323'] { --display: 'VT323', 'Courier New', monospace; --display-scale: 1.3; --display-regular: 400; --display-bold: 400; }
+[data-font='dotgothic'] { --display: 'DotGothic16', 'Silkscreen', monospace; --display-scale: .85; --display-regular: 400; --display-bold: 400; }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; }
