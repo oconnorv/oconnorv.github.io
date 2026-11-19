@@ -59,6 +59,16 @@ screenshots of every level.
 
 ## Publishing
 
+Before committing a change, run:
+
+```bash
+node dev/stamp.mjs
+```
+
+It gives every script and stylesheet a version tag based on its contents. GitHub Pages lets browsers
+reuse files for up to 10 minutes, so without the tags a visitor (or you, testing) can end up with the
+new page and old game code. `node dev/smoke.mjs` fails if the tags are out of date.
+
 GitHub Pages publishes the `main` branch automatically. Moving `oconnorv.com` from DreamHost is in
 [DEPLOY.md](DEPLOY.md).
 

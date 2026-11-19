@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import net from 'node:net';
 import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
 
 const require = createRequire(import.meta.url);
 const { chromium, devices } = require('playwright');
@@ -37,6 +38,10 @@ for (let i = 0; i < 50; i++) {
   try { if ((await fetch(base)).ok) break; } catch { /* not up yet */ }
   await new Promise((r) => setTimeout(r, 100));
 }
+
+// Every page must point at the current version of each script and stylesheet (see dev/stamp.mjs).
+const stamp = spawnSync(process.execPath, [path.join(root, 'dev', 'stamp.mjs'), '--check'], { encoding: 'utf8' });
+ok(stamp.status === 0, `version tags are up to date${stamp.status ? ` (${stamp.stderr.trim()})` : ''}`);
 
 const browser = await chromium.launch();
 try {
