@@ -1,20 +1,17 @@
 /* Shared flat arcade theme for the home page and the content pages:
    solid colours, square corners, bevelled edges, hard shadows. */
-@font-face { font-family: 'Silkscreen'; src: url('../fonts/silkscreen-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
-@font-face { font-family: 'Silkscreen'; src: url('../fonts/silkscreen-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }
-@font-face { font-family: 'Pixelify Sans'; src: url('../fonts/pixelify-sans-500.woff2') format('woff2'); font-weight: 400 500; font-display: swap; }
-@font-face { font-family: 'Pixelify Sans'; src: url('../fonts/pixelify-sans-700.woff2') format('woff2'); font-weight: 600 700; font-display: swap; }
 @font-face { font-family: 'VT323'; src: url('../fonts/vt323-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
-@font-face { font-family: 'DotGothic16'; src: url('../fonts/dotgothic16-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'DejaVu Sans'; src: url('../fonts/dejavu-sans-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'DejaVu Sans'; src: url('../fonts/dejavu-sans-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }
 
 :root {
-  /* The display font (header, buttons, links, headings; the game's own text uses js/game/fonts.js).
-     --display-scale keeps text about the same visual size whichever font is used. */
-  --display: 'Silkscreen', 'Courier New', monospace;
-  --display-scale: 1;
-  --display-regular: 400;
-  --display-bold: 700;
-  --ui: Verdana, Tahoma, Geneva, sans-serif;
+  /* The display font, VT323: header, buttons, links and headings (the game's own text uses
+     js/game/fonts.js). It has one weight. Its capitals are small for its size, so display sizes are
+     written at the size the layout wants and multiplied by --display-scale. */
+  --display: 'VT323', 'Courier New', monospace;
+  --display-scale: 1.3;
+  /* Body text: DejaVu Sans, an open font close to Verdana. */
+  --ui: 'DejaVu Sans', sans-serif;
   --side-w: 190px;   /* the column beside the game that holds "this is annoying" */
   --side-gap: 16px;
   --panel-h: 72px;   /* height of that panel when it sits under the game instead */
@@ -53,11 +50,6 @@
   --hard-shadow: rgba(0, 0, 0, .55);
 }
 
-/* Font options for comparing (<html data-font="...">). */
-[data-font='pixelify'] { --display: 'Pixelify Sans', 'Silkscreen', monospace; --display-scale: 1.08; --display-regular: 500; --display-bold: 700; }
-[data-font='vt323'] { --display: 'VT323', 'Courier New', monospace; --display-scale: 1.3; --display-regular: 400; --display-bold: 400; }
-[data-font='dotgothic'] { --display: 'DotGothic16', 'Silkscreen', monospace; --display-scale: .85; --display-regular: 400; --display-bold: 400; }
-
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body { background: var(--bg); color: var(--text); font: 15px/1.6 var(--ui); }
@@ -67,7 +59,7 @@ a:hover { color: var(--link-hover); }
 
 /* ---------------------------------------------------------------- wordmark */
 .wordmark {
-  font: var(--display-bold) calc(26px * var(--display-scale))/1 var(--display);
+  font: 400 calc(26px * var(--display-scale))/1 var(--display);
   letter-spacing: 1px;
   white-space: nowrap;
   color: var(--wordmark);
@@ -86,7 +78,7 @@ a.wordmark:hover { color: var(--wordmark-hover); }
   border-color: var(--btn-hi) var(--btn-lo) var(--btn-lo) var(--btn-hi);
   border-radius: 0;
   padding: 8px 14px;
-  font: var(--display-regular) calc(12px * var(--display-scale))/1 var(--display);
+  font: 400 calc(12px * var(--display-scale))/1 var(--display);
   letter-spacing: .6px;
   color: var(--btn-fg);
   background: var(--btn-bg);
@@ -162,7 +154,7 @@ body.home {
   border: 1px solid var(--ann-border);
   border-radius: 0;
   padding: 7px 12px;
-  font: var(--display-regular) calc(13px * var(--display-scale))/1.3 var(--display);
+  font: 400 calc(13px * var(--display-scale))/1.3 var(--display);
   letter-spacing: .5px;
   color: var(--ann-fg);
   background: var(--ann-bg);
@@ -177,7 +169,7 @@ body.home {
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
-  font: var(--display-regular) calc(13px * var(--display-scale))/1.4 var(--display);
+  font: 400 calc(13px * var(--display-scale))/1.4 var(--display);
   letter-spacing: .5px;
   white-space: nowrap;
 }
@@ -252,7 +244,7 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
   box-shadow: 0 0 0 2px var(--ink), 8px 8px 0 0 var(--hard-shadow);
 }
 .dlg-titlebar {
-  font: var(--display-regular) calc(13px * var(--display-scale))/1 var(--display);
+  font: 400 calc(13px * var(--display-scale))/1 var(--display);
   letter-spacing: 2px;
   color: var(--dlg-title-fg);
   background: var(--dlg-title-bg);
@@ -269,11 +261,11 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
     repeating-linear-gradient(180deg, transparent 0 6px, rgba(0, 0, 0, .45) 6px 8px) 6px 15px / 22px 22px no-repeat,
     var(--dlg-icon);
 }
-.dlg-file { font: var(--display-bold) calc(22px * var(--display-scale))/1.1 var(--display); color: var(--dlg-file); text-shadow: 2px 2px 0 var(--dlg-file-shadow); word-break: break-all; }
+.dlg-file { font: 400 calc(22px * var(--display-scale))/1.1 var(--display); color: var(--dlg-file); text-shadow: 2px 2px 0 var(--dlg-file-shadow); word-break: break-all; }
 .dlg-desc { color: var(--dlg-desc); margin-top: 4px; font-size: 15px; }
 .dlg-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; padding: 16px 20px 8px; }
 .dlg-buttons .btn { font-size: calc(13px * var(--display-scale)); padding: 10px 16px; }
-.dlg-hint { text-align: center; font: var(--display-regular) calc(10px * var(--display-scale))/1.4 var(--display); letter-spacing: 1px; color: var(--dlg-hint); padding: 4px 10px 14px; }
+.dlg-hint { text-align: center; font: 400 calc(10px * var(--display-scale))/1.4 var(--display); letter-spacing: 1px; color: var(--dlg-hint); padding: 4px 10px 14px; }
 @media (max-width: 560px) {
   .dlg-body { padding: 14px 14px 4px; }
   .dlg-file { font-size: calc(16px * var(--display-scale)); }
@@ -293,7 +285,7 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
   border-bottom: 2px solid var(--line);
 }
 .page-head .wordmark { font-size: calc(22px * var(--display-scale)); }
-.page-head .file-name { font: var(--display-regular) calc(12px * var(--display-scale))/1 var(--display); color: var(--filename); letter-spacing: 1.5px; display: block; margin-top: 8px; }
+.page-head .file-name { font: 400 calc(12px * var(--display-scale))/1 var(--display); color: var(--filename); letter-spacing: 1.5px; display: block; margin-top: 8px; }
 .panel {
   border: 2px solid var(--card-border);
   background: var(--card-bg);
@@ -304,9 +296,9 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
 /* Links in panels are coloured; buttons that happen to be links keep their own (dark) text. */
 .panel a:not(.btn) { color: var(--card-link); }
 .panel a:not(.btn):hover { color: var(--card-link-hover); }
-.page h1 { font: var(--display-bold) calc(26px * var(--display-scale))/1.2 var(--display); margin: 0 0 6px; color: var(--card-h1); text-shadow: 3px 3px 0 var(--card-h1-shadow); }
+.page h1 { font: 400 calc(26px * var(--display-scale))/1.2 var(--display); margin: 0 0 6px; color: var(--card-h1); text-shadow: 3px 3px 0 var(--card-h1-shadow); }
 .page h2 {
-  font: var(--display-bold) calc(15px * var(--display-scale))/1.3 var(--display);
+  font: 400 calc(15px * var(--display-scale))/1.3 var(--display);
   letter-spacing: 1.5px;
   color: var(--card-h2);
   margin: 26px 0 10px;
@@ -318,7 +310,7 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
 .page ul { padding-left: 20px; }
 .page li { margin: 4px 0; }
 .entry { display: grid; grid-template-columns: 136px 1fr; gap: 4px 16px; margin: 10px 0; }
-.entry .when { color: var(--card-when); font: var(--display-regular) calc(12px * var(--display-scale))/1.9 var(--display); letter-spacing: .5px; }
+.entry .when { color: var(--card-when); font: 14px/24px var(--ui); }
 .entry .what strong { color: var(--card-strong); }
 .entry .what span { color: var(--card-dim); }
 @media (max-width: 560px) {
@@ -326,14 +318,14 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
   .entry { grid-template-columns: 1fr; gap: 0; }
 }
 .edit-note { border: 1px dashed var(--note); color: var(--note); padding: 8px 12px; font-size: 14px; margin: 0 0 14px; }
-.page-foot { margin-top: 22px; text-align: center; font: var(--display-regular) calc(10px * var(--display-scale))/1.6 var(--display); letter-spacing: 1px; color: var(--foot); }
+.page-foot { margin-top: 22px; text-align: center; font: 12px/1.6 var(--ui); letter-spacing: .5px; color: var(--foot); }
 /* 404 page */
 .page-404 { text-align: center; padding-top: 8vh; }
 .page-404 .panel { margin-top: 24px; }
-.page h1.big-404 { font-size: calc(clamp(110px, 24vw, 230px) * var(--display-scale)); font-weight: var(--display-regular); line-height: 1; margin: 6px 0 14px; text-shadow: 8px 8px 0 var(--card-h1-shadow); }
-.page .lost { font: var(--display-regular) calc(18px * var(--display-scale))/1.6 var(--display); letter-spacing: 2px; color: #ff9aa6; margin: 0 0 12px; }
+.page h1.big-404 { font-size: calc(clamp(110px, 24vw, 230px) * var(--display-scale)); font-weight: 400; line-height: 1; margin: 6px 0 14px; text-shadow: 8px 8px 0 var(--card-h1-shadow); }
+.page .lost { font: 400 calc(18px * var(--display-scale))/1.6 var(--display); letter-spacing: 2px; color: #ff9aa6; margin: 0 0 12px; }
 .btn.big { font-size: calc(15px * var(--display-scale)); padding: 12px 20px; }
-.email-box { font: var(--display-bold) calc(18px * var(--display-scale))/1.4 var(--display); color: var(--card-strong); letter-spacing: .5px; }
+.email-box { font: 700 18px/1.4 var(--ui); color: var(--card-strong); }
 
 /* ---------------------------------------------------------------- printing the CV: plain black on white */
 @media print {

@@ -44,22 +44,6 @@ const stamp = spawnSync(process.execPath, [path.join(root, 'dev', 'stamp.mjs'), 
 ok(stamp.status === 0, `version tags are up to date${stamp.status ? ` (${stamp.stderr.trim()})` : ''}`);
 
 const browser = await chromium.launch();
-// FONT=pixelify (or vt323, dotgothic, pixel) runs every check with that display font.
-if (process.env.FONT) {
-  const newContext = browser.newContext.bind(browser);
-  browser.newContext = async (opts) => {
-    const ctx = await newContext(opts);
-    await ctx.addInitScript((f) => {
-      try {
-        const s = JSON.parse(localStorage.getItem('bitstream.v1') || '{}');
-        s.font = f;
-        localStorage.setItem('bitstream.v1', JSON.stringify(s));
-      } catch { /* ignore */ }
-    }, process.env.FONT);
-    return ctx;
-  };
-  console.log(`(display font: ${process.env.FONT})`);
-}
 try {
   // ------------------------------------------------------------ every page loads without errors
   {
@@ -73,6 +57,22 @@ try {
       await page.waitForTimeout(300);
       ok(resp.ok() && errors.length === 0, `/${p || 'index.html'} loads with no console errors${errors.length ? `: ${errors.join('; ')}` : ''}`);
       await page.close();
+    }
+    await ctx.close();
+  }
+
+  // ------------------------------------------------------------ the fonts load (no silent fallback)
+  {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    for (const [p, want] of [['', ['VT323 400', 'DejaVu Sans 400']], ['cv.html', ['VT323 400', 'DejaVu Sans 400', 'DejaVu Sans 700']]]) {
+      await page.goto(base + p, { waitUntil: 'networkidle' });
+      const got = await page.evaluate(async () => {
+        await document.fonts.ready;
+        return [...document.fonts].filter((f) => f.status === 'loaded').map((f) => `${f.family.replace(/["']/g, '')} ${f.weight}`);
+      });
+      const missing = want.filter((w) => !got.includes(w));
+      ok(missing.length === 0, `/${p || 'index.html'} loads its fonts${missing.length ? ` (missing: ${missing.join(', ')}; loaded: ${got.join(', ') || 'none'})` : ''}`);
     }
     await ctx.close();
   }

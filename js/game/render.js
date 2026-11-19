@@ -440,11 +440,11 @@ function label(ctx, str, x, y, align = 'left') {
 // Big headline: flat face colour, dark outline, hard offset shadow.
 function bigText(ctx, str, x, y, size, face, maxW = W - 90) {
   ctx.save();
-  ctx.font = font(size, 'heavy');
+  ctx.font = font(size);
   const wide = ctx.measureText(str).width;
   if (wide > maxW) {
     size = Math.floor((size * maxW) / wide);
-    ctx.font = font(size, 'heavy');
+    ctx.font = font(size);
   }
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';

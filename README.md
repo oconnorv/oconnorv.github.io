@@ -75,5 +75,12 @@ GitHub Pages publishes the `main` branch automatically. Moving `oconnorv.com` fr
 
 ## Credits
 
-Pixel font: [Silkscreen](https://github.com/googlefonts/silkscreen) by Jason Kottke, SIL Open Font
-License (`fonts/SILKSCREEN-LICENSE.txt`). Everything else is original to this site.
+Fonts, both open and self-hosted in `fonts/`:
+
+- Headings and the game: [VT323](https://fonts.google.com/specimen/VT323) by Peter Hull, SIL Open
+  Font License (`fonts/VT323-LICENSE.txt`).
+- Body text: [DejaVu Sans](https://dejavu-fonts.github.io/), based on Bitstream Vera, under the
+  Bitstream Vera licence with DejaVu's changes in the public domain (`fonts/DEJAVU-SANS-LICENSE.txt`).
+  Trimmed to Latin characters to keep the files small.
+
+Everything else is original to this site.

@@ -7,19 +7,12 @@ import { Renderer } from './game/render.js';
 import { Sound } from './game/audio.js';
 import { attachInput } from './game/input.js';
 import { STEP } from './game/constants.js';
-import { FONTS, F, setFont } from './game/fonts.js';
+import { FONT_FACE } from './game/fonts.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 const debug = params.has('debug');
 const saved = load();
-
-// Display font. ?font=pixel (or pixelify, vt323, dotgothic) picks one and remembers it, for comparing fonts.
-const askedFont = params.get('font');
-if (FONTS[askedFont]) save({ font: askedFont });
-const fontChoice = FONTS[askedFont] ? askedFont : FONTS[saved.font] ? saved.font : 'pixel';
-setFont(fontChoice);
-document.documentElement.dataset.font = fontChoice;
 
 const canvas = $('game');
 const stage = $('stage');
@@ -98,7 +91,7 @@ layout();
 
 // Redraw cached text once the display font has loaded.
 if (document.fonts) {
-  Promise.all(F.load.map((f) => document.fonts.load(f)))
+  document.fonts.load(FONT_FACE)
     .then(() => renderer.cache.clear())
     .catch(() => {});
 }
