@@ -12,16 +12,16 @@
 }
 
 /* ---------------------------------------------------------------- palettes
-   The page colours for each palette. <html data-theme="..."> picks one; neon is the default.
-   The game's own colours live in js/game/themes.js. */
-:root, [data-theme='neon'] {
+   The page colours. Soft neon is the default; <html data-theme="softer"> or "bright" swaps the
+   accent colours (everything else follows them). The game's own colours are in js/game/themes.js. */
+:root, [data-theme='soft'] {
   --bg: #05071a;
   --panel: #0a0e2c;
   --line: #2b3350;
   --ink: #04060f;
-  --accent: #2fd5ff;
-  --gold: #ffd23f;
-  --shadow: #0b3d91;
+  --accent: #33c4e8;
+  --gold: #eac241;
+  --shadow: #173d7c;
   --text: #dbe3f7;
   --dim: #8b96b8;
   --soft: #a9b4d4;
@@ -31,9 +31,9 @@
   --focus: var(--gold);
   --wordmark: var(--accent);
   --wordmark-shadow: var(--shadow);
-  --wordmark-hover: #7fe4ff;
+  --wordmark-hover: #77d6f0;
   --filename: var(--gold);
-  --btn-bg: #2fd5ff; --btn-fg: #04060f; --btn-hi: #b9f1ff; --btn-lo: #0b6d88; --btn-hover: #7fe4ff;
+  --btn-bg: #33c4e8; --btn-fg: #04060f; --btn-hi: #a8e6f5; --btn-lo: #166074; --btn-hover: #77d6f0;
   --btn2-bg: #c9ced8; --btn2-fg: #04060f; --btn2-hi: #ffffff; --btn2-lo: #6b7280; --btn2-hover: #e3e7ee;
   --frame-line: var(--line);
   --ann-bg: var(--panel); --ann-fg: var(--soft); --ann-border: var(--line); --ann-hover: var(--accent);
@@ -45,74 +45,23 @@
   --hard-shadow: rgba(0, 0, 0, .55);
 }
 
-/* Classic early-PC 16 colours: black, DOS blue, bright cyan and yellow. */
-[data-theme='dos'] {
-  --bg: #000000;
-  --panel: #0000aa;
-  --line: #aaaaaa;
-  --ink: #000000;
-  --accent: #55ffff;
-  --gold: #ffff55;
-  --shadow: #0000aa;
-  --text: #ffffff;
-  --dim: #aaaaaa;
-  --soft: #aaaaaa;
-  --foot: #aaaaaa;
-  --link: #55ffff;
-  --link-hover: #ffffff;
-  --focus: #ffff55;
-  --wordmark: #ffff55;
-  --wordmark-shadow: #0000aa;
-  --wordmark-hover: #ffffff;
-  --filename: #ffff55;
-  --btn-bg: #00aaaa; --btn-fg: #000000; --btn-hi: #55ffff; --btn-lo: #005555; --btn-hover: #55ffff;
-  --btn2-bg: #aaaaaa; --btn2-fg: #000000; --btn2-hi: #ffffff; --btn2-lo: #555555; --btn2-hover: #ffffff;
-  --frame-line: #aaaaaa;
-  --ann-bg: #0000aa; --ann-fg: #ffffff; --ann-border: #aaaaaa; --ann-hover: #55ffff;
-  --dlg-bg: #0000aa; --dlg-border: #ffffff; --dlg-title-bg: #55ffff; --dlg-title-fg: #000000;
-  --dlg-file: #ffff55; --dlg-file-shadow: #000000; --dlg-desc: #ffffff; --dlg-hint: #aaaaaa; --dlg-icon: #ffff55;
-  --card-bg: #0000aa; --card-border: #aaaaaa; --card-text: #ffffff; --card-h1: #ffff55;
-  --card-h1-shadow: #000000; --card-h2: #55ffff; --card-dim: #aaaaaa; --card-when: #ffff55;
-  --card-strong: #ffffff; --card-link: #55ffff; --card-link-hover: #ffffff; --note: #ffff55;
-  --hard-shadow: rgba(0, 0, 0, .8);
+/* A step further down. */
+[data-theme='softer'] {
+  --accent: #3ab6d5;
+  --gold: #d8b646;
+  --shadow: #1f3c6d;
+  --wordmark-hover: #76cbe2;
+  --btn-bg: #3ab6d5; --btn-hi: #a1dceb; --btn-lo: #1e5767; --btn-hover: #76cbe2;
 }
 
-/* Mid-90s desktop: teal background, grey bevelled windows, navy title bars. */
-[data-theme='desktop'] {
-  --bg: #008080;
-  --panel: #c0c0c0;
-  --line: #c0c0c0;
-  --ink: #000000;
-  --accent: #000080;
-  --gold: #ffff00;
-  --shadow: #000000;
-  --text: #ffffff;
-  --dim: #404040;
-  --soft: #404040;
-  --foot: #ffffff;
-  --link: #ffffff;
-  --link-hover: #ffff00;
-  --focus: #ffff00;
-  --wordmark: #ffffff;
-  --wordmark-shadow: #000000;
-  --wordmark-hover: #ffff00;
-  --filename: #ffffff;
-  --btn-bg: #c0c0c0; --btn-fg: #000000; --btn-hi: #ffffff; --btn-lo: #808080; --btn-hover: #d4d4d4;
-  --btn2-bg: #c0c0c0; --btn2-fg: #000000; --btn2-hi: #ffffff; --btn2-lo: #808080; --btn2-hover: #d4d4d4;
-  --frame-line: #c0c0c0;
-  --ann-bg: #c0c0c0; --ann-fg: #000000; --ann-border: #808080; --ann-hover: #000080;
-  --dlg-bg: #c0c0c0; --dlg-border: #ffffff; --dlg-title-bg: #000080; --dlg-title-fg: #ffffff;
-  --dlg-file: #000000; --dlg-file-shadow: #c0c0c0; --dlg-desc: #000000; --dlg-hint: #404040; --dlg-icon: #ffff00;
-  --card-bg: #c0c0c0; --card-border: #ffffff; --card-text: #000000; --card-h1: #000080;
-  --card-h1-shadow: #c0c0c0; --card-h2: #000080; --card-dim: #404040; --card-when: #800000;
-  --card-strong: #000000; --card-link: #0000cc; --card-link-hover: #800080; --note: #800000;
-  --hard-shadow: rgba(0, 0, 0, .6);
+/* The original full-strength neon. */
+[data-theme='bright'] {
+  --accent: #2fd5ff;
+  --gold: #ffd23f;
+  --shadow: #0b3d91;
+  --wordmark-hover: #7fe4ff;
+  --btn-bg: #2fd5ff; --btn-hi: #b9f1ff; --btn-lo: #0b6d88; --btn-hover: #7fe4ff;
 }
-/* Grey windows get the raised 90s bevel (light top/left, dark bottom/right). */
-[data-theme='desktop'] .panel,
-[data-theme='desktop'] .dlg-panel { border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff; }
-[data-theme='desktop'] .annoying { border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff; box-shadow: 0 0 0 1px #000000; }
-[data-theme='desktop'] .page-head { border-bottom-color: #c0c0c0; }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; }
