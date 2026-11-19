@@ -7,11 +7,19 @@ import { Renderer } from './game/render.js';
 import { Sound } from './game/audio.js';
 import { attachInput } from './game/input.js';
 import { STEP } from './game/constants.js';
+import { THEMES, DEFAULT_THEME, setTheme } from './game/themes.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 const debug = params.has('debug');
 const saved = load();
+
+// Colour palette. ?palette=dos (or desktop, neon) picks one and remembers it, for comparing palettes.
+const asked = params.get('palette');
+if (THEMES[asked]) save({ palette: asked });
+const palette = THEMES[asked] ? asked : THEMES[saved.palette] ? saved.palette : DEFAULT_THEME;
+setTheme(palette);
+document.documentElement.dataset.theme = palette;
 
 const canvas = $('game');
 const stage = $('stage');

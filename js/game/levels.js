@@ -1,4 +1,5 @@
 import { FIELD, BRICK_TOP } from './constants.js';
+import { T, color } from './themes.js';
 import { wordToGrid } from './font.js';
 
 // Grid legend:
@@ -8,11 +9,11 @@ import { wordToGrid } from './font.js';
 //   ?        mystery brick: always drops a power-up
 //   X        bad sector: blows up its neighbours when destroyed
 //   a-z      a brick from the level's palette ({ color, hp })
+//
+// Colours are names from the active palette in themes.js, so every level follows the chosen look.
 
-export const HP_COLORS = { 1: '#2fd5ff', 2: '#3b7bff', 3: '#9b6bff', 4: '#ff8a2b', 5: '#ff4a5e' };
-const RAINBOW = ['#ff4a5e', '#ffaa2b', '#ffd23f', '#8cff3f', '#2fd5ff', '#3b7bff', '#9b6bff', '#ff4fd8'];
 
-const CYAN = '#2fd5ff', MAGENTA = '#ff4fd8', LIME = '#8cff3f', ORANGE = '#ffaa2b';
+const CYAN = 'cyan', MAGENTA = 'pink', LIME = 'green', ORANGE = 'orange';
 
 export const LEVELS = [
   {
@@ -29,7 +30,7 @@ export const LEVELS = [
     grid: wordToGrid("O'CONNOR", (i) => 'aabcdefg'[i]),
   },
   {
-    name: 'V', card: 'V', top: 110, bh: 22, speed: [300, 460], drop: 0.24, bad: 0.4, rowColors: RAINBOW,
+    name: 'V', card: 'V', top: 110, bh: 22, speed: [300, 460], drop: 0.24, bad: 0.4, rowColors: 'rainbow',
     grid: [
       'SS.............SS',
       '2111.........1112',
@@ -45,12 +46,12 @@ export const LEVELS = [
   },
   {
     name: 'BARCODE', card: 'B A R C O D E', bh: 26, speed: [320, 480], drop: 0.22, bad: 0.5,
-    rowColors: ['#f4f8ff', '#e3ecff', '#d2e1ff', '#c1d6ff', '#b0cbff', '#9fc0ff'],
+    rowColors: 'barcode',
     grid: Array(6).fill('1.11.1..111.1.11..1.1.11'),
   },
   {
     name: '3.5" FLOPPY', card: '3 . 5 "   F L O P P Y', bh: 26, speed: [330, 500], drop: 0.2, bad: 0.6,
-    palette: { d: { color: '#1f4fd6', hp: 2 }, b: { color: '#2f6bff' }, w: { color: '#eef3ff' } },
+    palette: { d: { color: 'navy', hp: 2 }, b: { color: 'floppy' }, w: { color: 'sticker' } },
     grid: [
       '.ddddSSSSddd..',
       '.ddddS..Sdddd.',
@@ -64,7 +65,7 @@ export const LEVELS = [
   },
   {
     name: 'PUNCH CARD', card: 'P U N C H   C A R D', bh: 22, speed: [340, 520], drop: 0.18, bad: 0.7,
-    palette: { c: { color: '#f0dca0' }, d: { color: '#d6a94a', hp: 2 } },
+    palette: { c: { color: 'paper' }, d: { color: 'paperDark', hp: 2 } },
     grid: [
       '..cccccccccccc',
       '.cc.ccdc.cccdc',
@@ -79,7 +80,7 @@ export const LEVELS = [
   },
   {
     name: 'MICROFILM', card: 'M I C R O F I L M', bh: 24, speed: [345, 525], drop: 0.17, bad: 0.8,
-    palette: { k: { color: '#e09a2e' } },
+    palette: { k: { color: 'film' } },
     grid: [
       'S.S.S.S.S.S.S.',
       'kkkkkkkkkkkkkk',
@@ -92,7 +93,7 @@ export const LEVELS = [
   },
   {
     name: 'REEL-TO-REEL', card: 'R E E L - T O - R E E L', bh: 30, speed: [370, 560], drop: 0.16, bad: 0.9,
-    rowColors: ['#2fd5ff'], palette: { t: { color: '#c9773a' } },
+    rowColors: ['cyan'], palette: { t: { color: 'tape' } },
     grid: [
       '...222......222...',
       '..21112....21112..',
@@ -107,7 +108,7 @@ export const LEVELS = [
   },
   {
     name: 'CARD CATALOG', card: 'C A R D   C A T A L O G', bh: 24, speed: [370, 570], drop: 0.14, bad: 1.0,
-    palette: { r: { color: '#c06a2c', hp: 3 }, q: { color: '#d98a45', hp: 2 }, h: { color: '#ecc65a' } },
+    palette: { r: { color: 'wood', hp: 3 }, q: { color: 'woodLight', hp: 2 }, h: { color: 'brass' } },
     grid: [
       'SSSSS....SSSSS',
       'SrrrrrrrrrrrrS',
@@ -179,19 +180,19 @@ export function buildLevel(def) {
           hp: 1, maxHp: 1, steel: false, mystery: false, bad: false, color: null, fixedColor: false,
           file: null, alive: true, flash: 0, seed: (r * 31 + c * 17) % 97,
         };
-        if (ch === 'S') { brick.steel = true; brick.hp = brick.maxHp = Infinity; brick.color = '#c8d2de'; }
-        else if (ch === '?') { brick.mystery = true; brick.color = '#ffd23f'; }
-        else if (ch === 'X') { brick.bad = true; brick.color = '#8a1020'; }
+        if (ch === 'S') { brick.steel = true; brick.hp = brick.maxHp = Infinity; brick.color = color('steel'); }
+        else if (ch === '?') { brick.mystery = true; brick.color = color('mystery'); }
+        else if (ch === 'X') { brick.bad = true; brick.color = color('badSector'); }
         else if (ch >= '1' && ch <= '5') {
           brick.hp = brick.maxHp = Number(ch);
           if (brick.hp === 1) {
-            const rc = def.rowColors;
-            brick.color = rc ? rc[r % rc.length] : HP_COLORS[1];
-          } else brick.color = HP_COLORS[brick.hp];
+            const rc = typeof def.rowColors === 'string' ? T[def.rowColors] : def.rowColors;
+            brick.color = rc ? color(rc[r % rc.length]) : T.hp[1];
+          } else brick.color = T.hp[brick.hp];
         } else if (def.palette && def.palette[ch]) {
           const p = def.palette[ch];
           brick.hp = brick.maxHp = p.hp || 1;
-          brick.color = p.color;
+          brick.color = color(p.color);
           brick.fixedColor = true;
         } else throw new Error(`${def.name}: unknown grid character "${ch}"`);
         bricks.push(brick);

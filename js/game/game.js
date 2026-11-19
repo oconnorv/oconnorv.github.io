@@ -309,8 +309,8 @@ export class Game {
       b.dy = -Math.abs(b.dy);
       this.effects.backup = false;
       this.emit('sfx', { name: 'net' });
-      this.flare(b.x, C.NET_Y, '#3b7bff');
-      this.text(b.x, C.NET_Y - 20, 'RESTORED FROM BACKUP', '#9fc0ff');
+      this.flare(b.x, C.NET_Y, 'net');
+      this.text(b.x, C.NET_Y - 20, 'RESTORED FROM BACKUP', 'netText');
       hit = true;
     }
     if (hit) {
@@ -450,7 +450,7 @@ export class Game {
     while (this.explosions.length && guard++ < 500) {
       const br = this.explosions.shift();
       this.emit('sfx', { name: 'boom' });
-      this.flare(br.x + br.w / 2, br.y + br.h / 2, '#ff4a5e');
+      this.flare(br.x + br.w / 2, br.y + br.h / 2, 'danger');
       this.fx.shake = Math.max(this.fx.shake, 6);
       for (let dr = -1; dr <= 1; dr++) {
         for (let dc = -1; dc <= 1; dc++) {
@@ -476,8 +476,8 @@ export class Game {
 
   spawnFilePill(id, x, y) {
     this.pills.push({ x, y, kind: 'file', file: id, w: C.FILE_PILL_W, h: C.PILL_H + 2, t: 0 });
-    this.flare(x, y, '#ffd23f', 1.4);
-    this.text(x, y - 14, 'FILE DETECTED', '#ffe27a', 1.4);
+    this.flare(x, y, 'mystery', 1.4);
+    this.text(x, y - 14, 'FILE DETECTED', 'goldText', 1.4);
     this.emit('sfx', { name: 'detect' });
   }
 
@@ -508,7 +508,7 @@ export class Game {
     const def = POWERUPS[pl.kind];
     const e = this.effects;
     this.emit('sfx', { name: def.good ? 'pill' : 'bad' });
-    this.banner = { kind: 'pill', title: def.name.toUpperCase(), sub: def.desc.toUpperCase(), color: def.good ? def.color : '#ff6b7a', t: 0, life: 2.2 };
+    this.banner = { kind: 'pill', title: def.name.toUpperCase(), sub: def.desc.toUpperCase(), color: def.good ? def.color : 'dangerText', t: 0, life: 2.2 };
     if (def.good) this.score += 100;
     switch (pl.kind) {
       case 'tiff': e.width = 'tiff'; e.widthT = def.dur; break;
@@ -535,7 +535,7 @@ export class Game {
     } else {
       this.score += 500;
       this.emit('sfx', { name: 'pill' });
-      this.text(x, PADDLE_Y - 24, '+500 ALREADY ARCHIVED', '#ffe27a', 1.4);
+      this.text(x, PADDLE_Y - 24, '+500 ALREADY ARCHIVED', 'goldText', 1.4);
     }
   }
 
@@ -718,7 +718,8 @@ export class Game {
     }
   }
 
-  text(x, y, str, color = '#ffffff', life = 1) {
+  // Colours here are palette names (themes.js); the renderer looks them up.
+  text(x, y, str, color = 'text', life = 1) {
     if (this.headless) return;
     this.fx.texts.push({ x, y, str, color, t: 0, life });
   }
