@@ -200,7 +200,22 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
   .annoying, .links { font-size: 12px; }
   .btn { font-size: 10px; }
   .play-spacer { display: none; }
+  .credit { left: 8px; bottom: 8px; max-width: 120px; font-size: 12px; }
 }
+
+/* Small credit in the bottom-left corner of the home screen. */
+.credit {
+  position: fixed;
+  left: 16px;
+  bottom: 12px;
+  margin: 0;
+  max-width: calc(var(--side-w) - 8px);
+  font: 13px/1.3 var(--ui);
+  color: var(--dim);
+}
+.credit a { color: var(--soft); }
+.credit a:hover { color: var(--link-hover); }
+@media (max-width: 560px) { .credit { left: 10px; bottom: 8px; font-size: 12px; } }
 
 .noscript { position: fixed; inset: auto 0 0 0; margin: 0; padding: 10px; text-align: center; background: #000; }
 

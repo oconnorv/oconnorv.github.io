@@ -71,7 +71,7 @@ try {
       return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
     }`;
     // [selector, selector whose background it sits on]
-    const homePairs = [['.wordmark', 'body'], ['#annoying', '#annoying'], ['#links a', 'body'], ['.dlg-desc', '.dlg-panel'], ['.dlg-file', '.dlg-panel'], ['.dlg-titlebar', '.dlg-titlebar'], ['#sound', '#sound']];
+    const homePairs = [['.wordmark', 'body'], ['.credit', 'body'], ['.credit a', 'body'], ['#annoying', '#annoying'], ['#links a', 'body'], ['.dlg-desc', '.dlg-panel'], ['.dlg-file', '.dlg-panel'], ['.dlg-titlebar', '.dlg-titlebar'], ['#sound', '#sound']];
     const cvPairs = [['.panel', '.panel'], ['.page h2', '.panel'], ['.entry .when', '.panel'], ['.entry .what span', '.panel'], ['.page-head .file-name', 'body'], ['.page-foot', 'body'], ['.edit-note', '.panel']];
     const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 } });
     const page = await ctx.newPage();
@@ -144,8 +144,12 @@ try {
       const f = document.getElementById('frame').getBoundingClientRect();
       const l = document.getElementById('links').getBoundingClientRect();
       const b = document.getElementById('annoying').getBoundingClientRect();
+      const c = document.querySelector('.credit').getBoundingClientRect();
       const overlaps = (a) => a.left < f.right && a.right > f.left && a.top < f.bottom && a.bottom > f.top;
+      const touches = (a, z) => a.left < z.right && a.right > z.left && a.top < z.bottom && a.bottom > z.top;
       return {
+        credit: c.width > 0 && c.left >= 0 && c.bottom <= innerHeight && c.left < innerWidth / 2
+          && !overlaps(c) && !touches(c, b) && !touches(c, l),
         place: b.left >= f.right - 1 && b.bottom <= f.bottom + 1 ? 'beside' : b.top >= f.bottom - 1 ? 'below' : 'other',
         clear: !overlaps(b) && !overlaps(l),
         noScroll: d.scrollHeight <= innerHeight + 1 && d.scrollWidth <= innerWidth + 1,
@@ -161,6 +165,7 @@ try {
     ok(before.noScroll && before.frameVisible && after.noScroll && after.linksVisible,
       `${name}: no scrolling, game (${before.frame}) and revealed links fit on screen`);
     ok(before.place === expect && after.clear, `${name}: "this is annoying" sits ${expect} the game and never covers it (${before.place})`);
+    ok(before.credit && after.credit, `${name}: "Created with Claude" sits bottom-left without covering the game or the links`);
     if (shotsDir) await page.screenshot({ path: path.join(shotsDir, `home-${name.replace(/\W+/g, '-')}.png`) });
     await ctx.close();
   }
