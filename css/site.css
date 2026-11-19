@@ -11,10 +11,9 @@
   --panel-h: 72px;   /* height of that panel when it sits under the game instead */
 }
 
-/* ---------------------------------------------------------------- palettes
-   The page colours. Soft neon is the default; <html data-theme="softer"> or "bright" swaps the
-   accent colours (everything else follows them). The game's own colours are in js/game/themes.js. */
-:root, [data-theme='soft'] {
+/* ---------------------------------------------------------------- colours
+   The page colours ("soft neon"). The game's own colours are in js/game/themes.js. */
+:root {
   --bg: #05071a;
   --panel: #0a0e2c;
   --line: #2b3350;
@@ -43,24 +42,6 @@
   --card-h1-shadow: var(--shadow); --card-h2: var(--accent); --card-dim: var(--dim); --card-when: var(--gold);
   --card-strong: #ffffff; --card-link: var(--accent); --card-link-hover: #ffffff; --note: var(--gold);
   --hard-shadow: rgba(0, 0, 0, .55);
-}
-
-/* A step further down. */
-[data-theme='softer'] {
-  --accent: #3ab6d5;
-  --gold: #d8b646;
-  --shadow: #1f3c6d;
-  --wordmark-hover: #76cbe2;
-  --btn-bg: #3ab6d5; --btn-hi: #a1dceb; --btn-lo: #1e5767; --btn-hover: #76cbe2;
-}
-
-/* The original full-strength neon. */
-[data-theme='bright'] {
-  --accent: #2fd5ff;
-  --gold: #ffd23f;
-  --shadow: #0b3d91;
-  --wordmark-hover: #7fe4ff;
-  --btn-bg: #2fd5ff; --btn-hi: #b9f1ff; --btn-lo: #0b6d88; --btn-hover: #7fe4ff;
 }
 
 * { box-sizing: border-box; }

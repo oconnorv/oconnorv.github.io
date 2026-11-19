@@ -1,6 +1,6 @@
 // Draws the game in a flat, sharp-edged arcade style: solid colours, bevelled edges,
 // square corners, hard drop-shadows. Reads game state; never changes it.
-// Every colour comes from the active palette (`T`) in themes.js.
+// Every colour comes from `T` in themes.js.
 import * as C from './constants.js';
 import { POWERUPS } from './powerups.js';
 import { T, color } from './themes.js';

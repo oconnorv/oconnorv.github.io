@@ -24,6 +24,7 @@ To rename a hidden file, change its label, or point it at a different page, edit
 | `js/game/constants.js` | Paddle size and speed, ball size, timings |
 | `js/game/game.js` | The rules: physics, scoring, lives, hidden files |
 | `js/game/render.js` | All the drawing |
+| `js/game/themes.js` | All the game's colours (the page's colours are the variables at the top of `css/site.css`) |
 | `js/game/audio.js` | Sound effects (synthesized, no audio files) |
 
 ## Running it locally

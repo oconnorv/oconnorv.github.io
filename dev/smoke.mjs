@@ -61,7 +61,7 @@ try {
     await ctx.close();
   }
 
-  // ------------------------------------------------------------ colour palettes
+  // ------------------------------------------------------------ colours stay readable (at least 4.5:1)
   {
     const contrast = `(fg, bg) => {
       const lum = (c) => c.match(/[0-9.]+/g).slice(0, 3).map(Number).map((v) => v / 255)
@@ -73,40 +73,32 @@ try {
     // [selector, selector whose background it sits on]
     const homePairs = [['.wordmark', 'body'], ['#annoying', '#annoying'], ['#links a', 'body'], ['.dlg-desc', '.dlg-panel'], ['.dlg-file', '.dlg-panel'], ['.dlg-titlebar', '.dlg-titlebar'], ['#sound', '#sound']];
     const cvPairs = [['.panel', '.panel'], ['.page h2', '.panel'], ['.entry .when', '.panel'], ['.entry .what span', '.panel'], ['.page-head .file-name', 'body'], ['.page-foot', 'body'], ['.edit-note', '.panel']];
-    const { THEMES } = await import(new URL('../js/game/themes.js', import.meta.url));
+    const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 } });
+    const page = await ctx.newPage();
+    const check = (pairs) => page.evaluate(([pairs, src]) => {
+      const contrast = eval(src);
+      const bgOf = (el) => { for (let e = el; e; e = e.parentElement) { const c = getComputedStyle(e).backgroundColor; if (c && c !== 'transparent' && !/^rgba\(.*,\s*0\)$/.test(c)) return c; } return 'rgb(255,255,255)'; };
+      return pairs.map(([fg, bg]) => {
+        const f = document.querySelector(fg), b = document.querySelector(bg);
+        return f && b ? [fg, contrast(getComputedStyle(f).color, bgOf(b))] : [fg, 0];
+      }).filter(([, r]) => r < 4.5).map(([sel, r]) => `${sel} ${r.toFixed(2)}:1`);
+    }, [pairs, contrast]);
+    await page.goto(base, { waitUntil: 'networkidle' });
+    const low = await check(homePairs);
+    await page.goto(base + 'cv.html', { waitUntil: 'networkidle' });
+    low.push(...(await check(cvPairs)));
+    ok(low.length === 0, `page text is at least 4.5:1 against its background${low.length ? ` (low: ${low.join(', ')})` : ''}`);
+    await ctx.close();
+
+    const { T } = await import(new URL('../js/game/themes.js', import.meta.url));
     const lumHex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255)
       .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
-      .reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
+      .reduce((sum, v, i) => sum + v * [0.2126, 0.7152, 0.0722][i], 0);
     const ratio = (a, b) => { const x = lumHex(a), y = lumHex(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
-    for (const name of Object.keys(THEMES)) {
-      const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 } });
-      const page = await ctx.newPage();
-      const errors = [];
-      page.on('pageerror', (e) => errors.push(e.message));
-      page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-      await page.goto(`${base}?palette=${name}`, { waitUntil: 'networkidle' });
-      const check = (pairs) => page.evaluate(([pairs, src]) => {
-        const contrast = eval(src);
-        const bgOf = (el) => { for (let e = el; e; e = e.parentElement) { const c = getComputedStyle(e).backgroundColor; if (c && c !== 'transparent' && !/^rgba\(.*,\s*0\)$/.test(c)) return c; } return 'rgb(255,255,255)'; };
-        return pairs.map(([fg, bg]) => {
-          const f = document.querySelector(fg), b = document.querySelector(bg);
-          return f && b ? [fg, contrast(getComputedStyle(f).color, bgOf(b))] : [fg, 0];
-        }).filter(([, r]) => r < 4.5).map(([s, r]) => `${s} ${r.toFixed(2)}:1`);
-      }, [pairs, contrast]);
-      const homeLow = await check(homePairs);
-      const theme = await page.evaluate(() => document.documentElement.dataset.theme);
-      await page.goto(base + 'cv.html', { waitUntil: 'networkidle' });
-      const carried = await page.evaluate(() => document.documentElement.dataset.theme);
-      const cvLow = await check(cvPairs);
-      ok(errors.length === 0 && theme === name && carried === name, `${name} palette: loads cleanly and carries over to the content pages`);
-      ok(homeLow.length === 0 && cvLow.length === 0, `${name} palette: page text is at least 4.5:1 against its background${[...homeLow, ...cvLow].length ? ` (low: ${[...homeLow, ...cvLow].join(', ')})` : ''}`);
-      const T = THEMES[name];
-      const gamePairs = [[T.text, T.hudBg], [T.label, T.hudBg], [T.gold, T.hudBg], [T.accent, T.hudBg], [T.fileOffText, T.hudBg],
-        [T.text, T.bg], [T.accent, T.bg], [T.gold, T.bg], [T.soft, T.bg], [T.softer, T.bg], [T.lifeText, T.bg], [T.dangerSoft, T.bg]];
-      const lowGame = gamePairs.filter(([f, b]) => ratio(f, b) < 4.5).map(([f, b]) => `${f} on ${b} ${ratio(f, b).toFixed(2)}:1`);
-      ok(lowGame.length === 0, `${name} palette: in-game text is at least 4.5:1${lowGame.length ? ` (low: ${lowGame.join(', ')})` : ''}`);
-      await ctx.close();
-    }
+    const gamePairs = [[T.text, T.hudBg], [T.label, T.hudBg], [T.gold, T.hudBg], [T.accent, T.hudBg], [T.fileOffText, T.hudBg],
+      [T.text, T.bg], [T.accent, T.bg], [T.gold, T.bg], [T.soft, T.bg], [T.softer, T.bg], [T.lifeText, T.bg], [T.dangerSoft, T.bg]];
+    const lowGame = gamePairs.filter(([f, b]) => ratio(f, b) < 4.5).map(([f, b]) => `${f} on ${b} ${ratio(f, b).toFixed(2)}:1`);
+    ok(lowGame.length === 0, `in-game text is at least 4.5:1${lowGame.length ? ` (low: ${lowGame.join(', ')})` : ''}`);
   }
 
   // ------------------------------------------------------------ the home page never scrolls
