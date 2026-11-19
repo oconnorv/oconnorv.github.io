@@ -103,11 +103,6 @@ export class Renderer {
       }
       ctx.drawImage(spr, br.x, br.y, br.w, br.h);
       if (!br.steel && br.hp < br.maxHp) drawCracks(ctx, br);
-      if (br.bad && Math.sin(g.t * 6 + br.seed) > 0.6) {
-        ctx.fillStyle = T.badBlink;
-        ctx.fillRect(br.x + 3, br.y + 3, br.w - 6, br.h - 6);
-      }
-      if (br.file) this.drawGlint(br, g.t);
       if (br.flash > 0) {
         ctx.fillStyle = `rgba(255,255,255,${Math.min(0.8, br.flash * 5).toFixed(3)})`;
         ctx.fillRect(br.x + 1, br.y + 1, br.w - 2, br.h - 2);
@@ -115,33 +110,9 @@ export class Renderer {
     }
   }
 
-  // A brick hiding a file gives off a quick shine every few seconds.
-  drawGlint(br, t) {
-    const period = 4.2;
-    const phase = (t + br.seed * 0.37) % period;
-    if (phase > 0.4) return;
-    const ctx = this.ctx;
-    const k = phase / 0.4;
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(br.x + 1, br.y + 1, br.w - 2, br.h - 2);
-    ctx.clip();
-    const x = br.x - br.h + (br.w + br.h * 2) * k;
-    ctx.fillStyle = 'rgba(255,255,255,0.7)';
-    ctx.beginPath();
-    ctx.moveTo(x - 4, br.y + br.h);
-    ctx.lineTo(x + br.h - 4, br.y);
-    ctx.lineTo(x + br.h + 4, br.y);
-    ctx.lineTo(x + 4, br.y + br.h);
-    ctx.fill();
-    ctx.restore();
-    if (k > 0.25 && k < 0.75) pixelStar(ctx, br.x + br.w - 6, br.y + 4, T.text);
-  }
-
   drawNet(g) {
     const ctx = this.ctx;
-    const on = Math.floor(g.t * 4) % 2 === 0;
-    ctx.fillStyle = on ? T.net.on : T.net.off;
+    ctx.fillStyle = T.net.on;
     ctx.fillRect(FIELD.x, C.NET_Y - 1, FIELD.w, 4);
     ctx.fillStyle = T.net.top;
     ctx.fillRect(FIELD.x, C.NET_Y - 1, FIELD.w, 1);
@@ -192,9 +163,9 @@ export class Renderer {
     const face = bs.face;
     const shade = bs.shade;
     for (const b of g.balls) {
-      if (hidden && g.t % 1 > 0.08) continue; // link rot: the ball only flickers into view
+      ctx.globalAlpha = hidden ? 0.18 : 1; // link rot: the ball fades to a faint ghost while it lasts
       const tr = b.trail;
-      if (!b.stuck && tr.length >= 4) {
+      if (!hidden && !b.stuck && tr.length >= 4) {
         ctx.font = `8px ${FONT}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -218,6 +189,7 @@ export class Renderer {
         ctx.fillRect(x0 + c * 2, y0 + r * 2, 2, 2);
       }
     }
+    ctx.globalAlpha = 1;
   }
 
   drawPills(g) {
@@ -227,8 +199,7 @@ export class Renderer {
       const y = Math.round(p.y - p.h / 2);
       if (p.file) {
         const page = this.pages.find((q) => q.id === p.file);
-        const blinkOn = Math.floor(p.t * 6) % 2 === 0;
-        ctx.fillStyle = blinkOn ? T.text : T.ink;
+        ctx.fillStyle = T.text;
         ctx.fillRect(x - 2, y - 2, p.w + 4, p.h + 4);
         bevelRect(ctx, x, y, p.w, p.h, T.filePill.base, T.filePill.hi, T.filePill.lo, 2);
         drawDocIcon(ctx, x + 6, y + 4, 11, p.h - 8, T.text);
@@ -257,11 +228,12 @@ export class Renderer {
   drawParticles(g) {
     const ctx = this.ctx;
     for (const q of g.fx.particles) {
-      if (q.life < 0.15 && Math.floor(q.life * 40) % 2) continue; // flicker out instead of fading
+      ctx.globalAlpha = Math.min(1, q.life / 0.25);
       ctx.fillStyle = q.color;
       const s = Math.round(q.size);
       ctx.fillRect(Math.round(q.x - s / 2), Math.round(q.y - s / 2), s, s);
     }
+    ctx.globalAlpha = 1;
   }
 
   // Explosions and "file detected" bursts: expanding square outlines.
@@ -286,9 +258,10 @@ export class Renderer {
   drawTexts(g) {
     const ctx = this.ctx;
     for (const q of g.fx.texts) {
-      if (q.life - q.t < 0.3 && Math.floor(q.t * 16) % 2) continue;
+      ctx.globalAlpha = Math.max(0, Math.min(1, (q.life - q.t) / 0.3));
       text(ctx, q.str, Math.round(q.x), Math.round(q.y), 12, color(q.color), 'center', true);
     }
+    ctx.globalAlpha = 1;
   }
 
   // Level 12: the lights are low. Only the area around the balls and paddle is lit.
@@ -385,7 +358,7 @@ export class Renderer {
     text(ctx, 'A DIGITAL PRESERVATION BRICK-BREAKER', W / 2, 212, 16, T.text, 'center', true);
     text(ctx, '4 FILES ARE HIDDEN IN THE BRICKS.', W / 2, 252, 18, T.gold, 'center', true);
     text(ctx, 'RECOVER THEM.', W / 2, 278, 18, T.gold, 'center', true);
-    if (blink(g.t)) text(ctx, 'PRESS SPACE OR CLICK TO START', W / 2, 330, 22, T.text, 'center', true);
+    text(ctx, 'PRESS SPACE OR CLICK TO START', W / 2, 330, 22, T.text, 'center', true);
     if (g.maxLevel > 1) text(ctx, `PRESS C TO CONTINUE FROM LEVEL ${String(g.maxLevel).padStart(2, '0')}`, W / 2, 364, 16, T.accent, 'center', true);
     const rows = [
       ['ARROWS / A D', 'MOVE'],
@@ -402,8 +375,7 @@ export class Renderer {
 
   drawBanner(g, b) {
     const ctx = this.ctx;
-    const late = b.life - b.t < 0.3;
-    if (late && Math.floor(b.t * 16) % 2) return; // blink out
+    ctx.globalAlpha = Math.max(0, Math.min(1, (b.life - b.t) / 0.3)); // fade out at the end
     if (b.kind === 'level') {
       const y = 362;
       panel(ctx, 130, y - 66, 540, 132);
@@ -420,13 +392,14 @@ export class Renderer {
       text(ctx, b.title, W / 2, 464, 16, color(b.color), 'center', true);
       text(ctx, b.sub, W / 2, 490, 14, T.text, 'center', true);
     }
+    ctx.globalAlpha = 1;
   }
 
   drawPaused(g) {
     this.dim(g.pauseReason === 'file' ? 0.75 : 0.62);
     if (g.pauseReason === 'file') return; // the "file recovered" dialog sits on top
     bigText(this.ctx, 'PAUSED', W / 2, 286, 48, T.text);
-    if (blink(g.t)) text(this.ctx, 'PRESS SPACE TO RESUME', W / 2, 346, 20, T.accent, 'center', true);
+    text(this.ctx, 'PRESS SPACE TO RESUME', W / 2, 346, 20, T.accent, 'center', true);
   }
 
   drawGameOver(g) {
@@ -435,7 +408,7 @@ export class Renderer {
     bigText(ctx, 'CHECKSUM MISMATCH', W / 2, 236, 36, T.danger);
     text(ctx, 'GAME OVER', W / 2, 288, 18, T.dangerSoft, 'center', true);
     text(ctx, `SCORE ${g.score}`, W / 2, 330, 20, T.text, 'center', true);
-    if (blink(g.t)) text(ctx, `SPACE / CLICK: CONTINUE FROM LEVEL ${String(g.levelIndex + 1).padStart(2, '0')}`, W / 2, 392, 16, T.accent, 'center', true);
+    text(ctx, `SPACE / CLICK: CONTINUE FROM LEVEL ${String(g.levelIndex + 1).padStart(2, '0')}`, W / 2, 392, 16, T.accent, 'center', true);
     text(ctx, '(YOUR SCORE STARTS OVER)', W / 2, 422, 14, T.soft, 'center', true);
   }
 
@@ -446,15 +419,11 @@ export class Renderer {
     text(ctx, 'ALL 12 LEVELS CLEARED.', W / 2, 276, 18, T.text, 'center', true);
     text(ctx, 'EVERY BIT ACCOUNTED FOR.', W / 2, 302, 18, T.text, 'center', true);
     text(ctx, `FINAL SCORE ${g.score}`, W / 2, 346, 22, T.accent, 'center', true);
-    if (blink(g.t)) text(ctx, 'SPACE / CLICK TO PLAY AGAIN', W / 2, 404, 18, T.text, 'center', true);
+    text(ctx, 'SPACE / CLICK TO PLAY AGAIN', W / 2, 404, 18, T.text, 'center', true);
   }
 }
 
 // ------------------------------------------------------------ drawing helpers
-
-function blink(t) {
-  return t % 1.1 < 0.75;
-}
 
 function makeRain() {
   const cols = [];
@@ -689,10 +658,4 @@ function drawMiniPaddle(ctx, x, y) {
   ctx.fillStyle = T.paddleCap;
   ctx.fillRect(x, y - 4, 5, 8);
   ctx.fillRect(x + 15, y - 4, 5, 8);
-}
-
-function pixelStar(ctx, x, y, color) {
-  ctx.fillStyle = color;
-  ctx.fillRect(Math.round(x) - 3, Math.round(y), 7, 1);
-  ctx.fillRect(Math.round(x), Math.round(y) - 3, 1, 7);
 }

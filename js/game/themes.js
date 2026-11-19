@@ -35,7 +35,6 @@ export const T = {
   bad: '#691925',
   badHatch: 'rgba(235,71,89,0.45)',
   badText: '#f9c9cf',
-  badBlink: 'rgba(235,79,97,0.45)',
   paddle: { base: '#c3c9d4', hi: '#f4f6fa', lo: '#626b7c' },
   paddleRot: { base: '#8fb07f', hi: '#c5e0b6', lo: '#4d6642' },
   paddleCap: '#33c4e8',
