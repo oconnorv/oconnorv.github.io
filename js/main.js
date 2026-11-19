@@ -110,7 +110,7 @@ function closeDialog() {
 
 const dialogOpen = () => !dialog.hidden;
 
-// Opening the page leaves the game paused; the visitor presses Space when they come back.
+// Opening the page leaves the game paused; the visitor presses P when they come back.
 dlgOpen.addEventListener('click', () => {
   if (dialogPage) game.markOpened(dialogPage.id);
   closeDialog();
@@ -180,7 +180,7 @@ attachInput({
   sound,
   isDialogOpen: dialogOpen,
   onToggleSound: toggleSound,
-  onSpace() {
+  onPause() {
     if (dialogOpen()) {
       closeDialog();
       game.resume();
@@ -202,7 +202,7 @@ function debugKeys(e) {
   const i = levelKeys.indexOf(e.code);
   if (i >= 0) game.start(i);
   else if (e.code === 'KeyF') game.debugSpawnFile();
-  else if (e.code === 'KeyP') game.debugSpawnPill();
+  else if (e.code === 'KeyU') game.debugSpawnPill();
   else if (e.code === 'KeyK') game.debugClearLevel();
 }
 

@@ -20,14 +20,14 @@
   <header class="topbar">
     <div class="wordmark">O'CONNOR V</div>
     <div class="top-buttons">
-      <button id="pause-btn" class="aqua small grey" type="button" aria-pressed="false">PAUSE</button>
-      <button id="sound" class="aqua small" type="button" aria-pressed="true">SOUND: ON</button>
+      <button id="pause-btn" class="btn grey" type="button" aria-pressed="false">PAUSE</button>
+      <button id="sound" class="btn" type="button" aria-pressed="true">SOUND: ON</button>
     </div>
   </header>
 
   <main id="stage">
     <div id="frame">
-      <canvas id="game" role="img" aria-label="BITSTREAM, a brick-breaker game. Arrow keys or A and D move the paddle, W or the up arrow launches the ball, Space pauses."></canvas>
+      <canvas id="game" role="img" aria-label="BITSTREAM, a brick-breaker game. Arrow keys or A and D move the paddle, Space launches the ball and fires lasers, P pauses."></canvas>
       <div id="file-dialog" class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" hidden>
         <div class="dlg-panel">
           <div class="dlg-titlebar" id="dlg-title">FILE RECOVERED</div>
@@ -39,10 +39,10 @@
             </div>
           </div>
           <div class="dlg-buttons">
-            <a id="dlg-open" class="aqua" href="cv.html" target="_blank" rel="noopener">OPEN IN NEW TAB</a>
-            <button id="dlg-keep" class="aqua grey" type="button">KEEP PLAYING</button>
+            <a id="dlg-open" class="btn" href="cv.html" target="_blank" rel="noopener">OPEN IN NEW TAB</a>
+            <button id="dlg-keep" class="btn grey" type="button">KEEP PLAYING</button>
           </div>
-          <div class="dlg-hint">ENTER: OPEN &nbsp;&middot;&nbsp; SPACE: KEEP PLAYING &nbsp;&middot;&nbsp; ESC: CLOSE</div>
+          <div class="dlg-hint">ENTER: OPEN &nbsp;&middot;&nbsp; P: KEEP PLAYING &nbsp;&middot;&nbsp; ESC: CLOSE</div>
         </div>
       </div>
     </div>

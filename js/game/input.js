@@ -1,21 +1,24 @@
 import { W } from './constants.js';
 
-// Keyboard, mouse and touch. Space is reserved for pause and never scrolls the page
-// or presses a focused button.
-export function attachInput({ game, canvas, sound, onSpace, onEscape, onToggleSound, isDialogOpen, debugKeys }) {
+// Keyboard, mouse and touch.
+// Space (also W, the up arrow, or a click/tap) launches the ball and fires lasers. P pauses.
+// Space never scrolls the page or presses a focused button.
+export function attachInput({ game, canvas, sound, onPause, onEscape, onToggleSound, isDialogOpen, debugKeys }) {
   const LEFT = new Set(['ArrowLeft', 'KeyA']);
   const RIGHT = new Set(['ArrowRight', 'KeyD']);
-  const FIRE = new Set(['ArrowUp', 'KeyW']);
+  const FIRE = new Set(['Space', 'ArrowUp', 'KeyW']);
 
   window.addEventListener('keydown', (e) => {
     sound.unlock();
-    if (e.code === 'Space') {
-      e.preventDefault();
-      if (!e.repeat) onSpace();
+    if (e.code === 'Space') e.preventDefault();
+    if (e.code === 'Escape') return onEscape();
+    if (e.code === 'KeyP' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      if (!e.repeat) onPause();
       return;
     }
-    if (e.code === 'Escape') return onEscape();
-    if (isDialogOpen()) return; // let Enter/Tab work normally inside the dialog
+    // While the "file recovered" dialog is open only Enter/Tab (handled by the browser), P and Esc
+    // do anything. Space is ignored so a player holding it to fire lasers can't dismiss the dialog.
+    if (isDialogOpen()) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (LEFT.has(e.code) || RIGHT.has(e.code) || FIRE.has(e.code) || e.code === 'ArrowDown') e.preventDefault();
     if (LEFT.has(e.code)) { game.input.left = true; game.input.pointerX = null; }

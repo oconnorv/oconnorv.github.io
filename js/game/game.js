@@ -123,7 +123,7 @@ export class Game {
     return { x, y, dx: 0, dy: -1, stuck: false, serve: false, offset: 0, stuckT: 0, dead: false, trail: [] };
   }
 
-  // W / up arrow / click / tap.
+  // Space / W / up arrow / click / tap.
   action() {
     if (this.paused) return;
     if (this.mode === 'title' || this.mode === 'win') return this.start(0);
@@ -625,7 +625,7 @@ export class Game {
     this.sinceBrick = 0;
     this.lastNudge = 0;
     this.serve();
-    this.banner = { kind: 'life', title: this.lives === 1 ? 'LAST LIFE' : `${this.lives} LIVES LEFT`, sub: 'W / UP / CLICK TO LAUNCH', t: 0, life: 1.8 };
+    this.banner = { kind: 'life', title: this.lives === 1 ? 'LAST LIFE' : `${this.lives} LIVES LEFT`, sub: 'SPACE / CLICK TO LAUNCH', t: 0, life: 1.8 };
   }
 
   gameOver() {

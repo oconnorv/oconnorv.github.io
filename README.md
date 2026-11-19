@@ -36,7 +36,7 @@ Then open http://localhost:8000. Opening `index.html` straight from disk won't w
 block JavaScript modules on `file://` pages.
 
 Add `?debug=1` to the address for test keys: `1`–`9`, `0`, `-`, `=` jump to levels 1–12, `F` drops a
-file, `P` drops a random power-up, `K` clears the level. `?debug=1&level=7` starts on level 7.
+file, `U` drops a random power-up, `K` clears the level. `?debug=1&level=7` starts on level 7.
 
 ## Tests
 

@@ -98,48 +98,59 @@ try {
     await page.goto(base + '?debug=1', { waitUntil: 'networkidle' });
     const g = (expr) => page.evaluate(`(() => { const game = window.__bitstream.game; return ${expr}; })()`);
 
-    await page.keyboard.press('KeyW');
-    ok((await g('game.mode')) === 'play', 'W starts the game');
-    let x0 = await g('game.paddle.x');
+    await page.keyboard.press('Space');
+    ok((await g('game.mode')) === 'play', 'Space starts the game');
+    const x0 = await g('game.paddle.x');
     await page.keyboard.down('ArrowRight'); await page.waitForTimeout(250); await page.keyboard.up('ArrowRight');
-    let x1 = await g('game.paddle.x');
+    const x1 = await g('game.paddle.x');
     await page.keyboard.down('KeyA'); await page.waitForTimeout(250); await page.keyboard.up('KeyA');
-    let x2 = await g('game.paddle.x');
+    const x2 = await g('game.paddle.x');
     await page.keyboard.down('KeyD'); await page.waitForTimeout(150); await page.keyboard.up('KeyD');
-    let x3 = await g('game.paddle.x');
+    const x3 = await g('game.paddle.x');
     await page.keyboard.down('ArrowLeft'); await page.waitForTimeout(150); await page.keyboard.up('ArrowLeft');
-    let x4 = await g('game.paddle.x');
+    const x4 = await g('game.paddle.x');
     ok(x1 > x0 + 50 && x2 < x1 - 50 && x3 > x2 + 30 && x4 < x3 - 30, 'arrow keys and A/D move the paddle');
 
-    await page.keyboard.press('KeyW');
-    ok((await g('game.balls.some(b => !b.stuck)')), 'W launches the ball');
     await page.keyboard.press('Space');
-    ok((await g('game.paused')) === true, 'Space pauses');
+    ok((await g('game.balls.some(b => !b.stuck)')), 'Space launches the ball');
+    await page.keyboard.press('KeyP');
+    ok((await g('game.paused')) === true, 'P pauses');
     const t0 = await g('game.levelTime');
     await page.waitForTimeout(300);
     ok((await g('game.levelTime')) === t0, 'nothing moves while paused');
     await page.keyboard.press('Space');
-    ok((await g('game.paused')) === false, 'Space resumes');
+    ok((await g('game.paused')) === true, 'Space does not unpause (only P does)');
+    await page.keyboard.press('KeyP');
+    ok((await g('game.paused')) === false, 'P resumes');
     ok((await page.evaluate(() => scrollY)) === 0, 'Space and arrows never scroll the page');
+
+    // lasers and the sticky paddle use Space too
+    await g('(game.effects.scan = 10, game.laserCd = 0, game.lasers = [], 0)');
+    await page.keyboard.press('Space');
+    ok((await g('game.lasers.length')) >= 2, 'Space fires lasers during SCAN');
+    await g('(() => { game.effects.scan = 0; game.effects.ingest = 15; const b = game.balls[0]; b.stuck = true; b.serve = false; b.offset = 10; b.stuckT = 0; })()');
+    await page.keyboard.press('Space');
+    ok((await g('game.balls[0].stuck')) === false, 'Space launches a ball caught by INGEST');
+    await g('(game.effects.ingest = 0, 0)');
 
     await page.evaluate(() => window.dispatchEvent(new Event('blur')));
     ok((await g('game.paused')) === true, 'leaving the window pauses the game');
-    await page.keyboard.press('Space');
+    await page.keyboard.press('KeyP');
 
     // sound toggle is remembered
     ok((await page.textContent('#sound')).includes('ON'), 'sound is on by default');
     await page.click('#sound');
     ok((await page.textContent('#sound')).includes('OFF'), 'sound button turns sound off');
+    await page.focus('#sound');
     await page.keyboard.press('Space'); // a focused button must not be "clicked" by Space
-    ok((await page.textContent('#sound')).includes('OFF'), 'Space does not press the sound button');
-    await page.keyboard.press('Space');
+    ok((await page.textContent('#sound')).includes('OFF'), 'Space does not press a focused button');
     await page.reload({ waitUntil: 'networkidle' });
     ok((await page.textContent('#sound')).includes('OFF'), 'sound setting is remembered after reload');
     await page.click('#sound');
 
     // the annoying button
-    await page.keyboard.press('KeyW');
-    await page.keyboard.press('KeyW');
+    await page.keyboard.press('Space');
+    await page.keyboard.press('Space');
     await page.click('#annoying');
     const ann = await page.evaluate(() => ({
       text: document.getElementById('annoying').textContent,
@@ -148,13 +159,16 @@ try {
     }));
     ok(ann.text === 'yeah, but it’s cool' && ann.vis === 'visible' && ann.n === 4, '"this is annoying" becomes "yeah, but it\'s cool" and shows the 4 links');
     ok((await g('game.paused')) === true, 'pressing it pauses the game');
-    await page.keyboard.press('Space');
-    ok((await g('game.paused')) === false && (await page.textContent('#annoying')) === 'yeah, but it’s cool', 'Space then resumes without re-pressing the button');
+    await page.keyboard.press('KeyP');
+    ok((await g('game.paused')) === false && (await page.textContent('#annoying')) === 'yeah, but it’s cool', 'P then resumes without re-pressing the button');
 
     // the file dialog
     await page.evaluate(() => window.__bitstream.game.debugSpawnFile('cv'));
     await page.waitForSelector('#file-dialog:not([hidden])', { timeout: 3000 });
     ok((await g('game.paused')) && (await page.textContent('#dlg-file')) === 'CV.PDF', 'catching a file pauses the game and shows the dialog');
+    await page.keyboard.press('Space');
+    await page.keyboard.press('Space');
+    ok((await page.isVisible('#file-dialog')) && (await g('game.paused')), 'Space does nothing while the dialog is open');
     if (shotsDir) await page.screenshot({ path: path.join(shotsDir, 'dialog.png') });
     const [tab] = await Promise.all([ctx.waitForEvent('page'), page.keyboard.press('Enter')]);
     await tab.waitForLoadState();
@@ -164,8 +178,8 @@ try {
     await tab.close();
     await page.bringToFront();
     if (shotsDir) await page.screenshot({ path: path.join(shotsDir, 'paused.png') });
-    await page.keyboard.press('Space');
-    ok((await g('game.paused')) === false, 'Space resumes after coming back');
+    await page.keyboard.press('KeyP');
+    ok((await g('game.paused')) === false, 'P resumes after coming back');
     const before = await g('game.score');
     await page.evaluate(() => window.__bitstream.game.debugSpawnFile('cv'));
     await page.waitForTimeout(700);
@@ -173,8 +187,8 @@ try {
 
     await page.evaluate(() => window.__bitstream.game.debugSpawnFile('about'));
     await page.waitForSelector('#file-dialog:not([hidden])', { timeout: 3000 });
-    await page.keyboard.press('Space');
-    ok((await page.isHidden('#file-dialog')) && !(await g('game.paused')), 'Space in the dialog means "keep playing"');
+    await page.keyboard.press('KeyP');
+    ok((await page.isHidden('#file-dialog')) && !(await g('game.paused')), 'P in the dialog means "keep playing"');
     await ctx.close();
   }
 
