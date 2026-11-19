@@ -270,8 +270,9 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
   padding: 22px 26px;
   box-shadow: 6px 6px 0 0 var(--hard-shadow);
 }
-.panel a { color: var(--card-link); }
-.panel a:hover { color: var(--card-link-hover); }
+/* Links in panels are coloured; buttons that happen to be links keep their own (dark) text. */
+.panel a:not(.btn) { color: var(--card-link); }
+.panel a:not(.btn):hover { color: var(--card-link-hover); }
 .page h1 { font: 700 26px/1.2 var(--pixel); margin: 0 0 6px; color: var(--card-h1); text-shadow: 3px 3px 0 var(--card-h1-shadow); }
 .page h2 {
   font: 700 15px/1.3 var(--pixel);
@@ -295,6 +296,12 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
 }
 .edit-note { border: 1px dashed var(--note); color: var(--note); padding: 8px 12px; font-size: 14px; margin: 0 0 14px; }
 .page-foot { margin-top: 22px; text-align: center; font: 10px/1.6 var(--pixel); letter-spacing: 1px; color: var(--foot); }
+/* 404 page */
+.page-404 { text-align: center; padding-top: 8vh; }
+.page-404 .panel { margin-top: 24px; }
+.page h1.big-404 { font-size: clamp(110px, 24vw, 230px); font-weight: 400; line-height: 1; margin: 6px 0 14px; text-shadow: 8px 8px 0 var(--card-h1-shadow); }
+.page .lost { font: 18px/1.6 var(--pixel); letter-spacing: 2px; color: #ff9aa6; margin: 0 0 12px; }
+.btn.big { font-size: 15px; padding: 12px 20px; }
 .email-box { font: 700 18px/1.4 var(--pixel); color: var(--card-strong); letter-spacing: .5px; }
 
 /* ---------------------------------------------------------------- printing the CV: plain black on white */

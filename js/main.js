@@ -186,7 +186,7 @@ syncPauseButton();
 
 annoying.addEventListener('click', () => {
   game.pause('user');
-  annoying.textContent = 'yeah, but it’s cool';
+  annoying.textContent = 'yeah, but it’s fun';
   annoying.setAttribute('aria-expanded', 'true');
   links.classList.add('shown');
   annoying.blur();

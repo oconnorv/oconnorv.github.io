@@ -88,6 +88,30 @@ try {
     await page.goto(base + 'cv.html', { waitUntil: 'networkidle' });
     low.push(...(await check(cvPairs)));
     ok(low.length === 0, `page text is at least 4.5:1 against its background${low.length ? ` (low: ${low.join(', ')})` : ''}`);
+
+    // Every button shows readable text, normally and on hover (a link styled as a button once
+    // inherited the panel's link colour and was blank until hovered).
+    const badButtons = [];
+    for (const p of ['', 'cv.html', 'failures.html', 'about.html', 'contact.html', '404.html']) {
+      await page.goto(base + p, { waitUntil: 'networkidle' });
+      const buttons = await page.locator('.btn, .annoying').all();
+      for (const el of buttons) {
+        const measure = () => el.evaluate((e, src) => {
+          const contrast = eval(src);
+          const cs = getComputedStyle(e);
+          return { r: contrast(cs.color, cs.backgroundColor), label: (e.textContent || '').trim() };
+        }, contrast);
+        const normal = await measure();
+        if (!normal.label || normal.r < 4.5) badButtons.push(`${p || 'index.html'} "${normal.label}" ${normal.r.toFixed(2)}:1`);
+        if (await el.isVisible()) {
+          await el.hover();
+          const hover = await measure();
+          if (hover.r < 4.5) badButtons.push(`${p || 'index.html'} "${hover.label}" on hover ${hover.r.toFixed(2)}:1`);
+          await page.mouse.move(0, 0);
+        }
+      }
+    }
+    ok(badButtons.length === 0, `every button has readable text, normally and on hover${badButtons.length ? ` (bad: ${badButtons.join(', ')})` : ''}`);
     await ctx.close();
 
     const { T } = await import(new URL('../js/game/themes.js', import.meta.url));
@@ -210,10 +234,10 @@ try {
       vis: getComputedStyle(document.getElementById('links')).visibility,
       n: document.querySelectorAll('#links a').length,
     }));
-    ok(ann.text === 'yeah, but it’s cool' && ann.vis === 'visible' && ann.n === 4, '"this is annoying" becomes "yeah, but it\'s cool" and shows the 4 links');
+    ok(ann.text === 'yeah, but it’s fun' && ann.vis === 'visible' && ann.n === 4, '"this is annoying" becomes "yeah, but it\'s fun" and shows the 4 links');
     ok((await g('game.paused')) === true, 'pressing it pauses the game');
     await page.keyboard.press('KeyP');
-    ok((await g('game.paused')) === false && (await page.textContent('#annoying')) === 'yeah, but it’s cool', 'P then resumes without re-pressing the button');
+    ok((await g('game.paused')) === false && (await page.textContent('#annoying')) === 'yeah, but it’s fun', 'P then resumes without re-pressing the button');
 
     // the file dialog
     await page.evaluate(() => window.__bitstream.game.debugSpawnFile('cv'));
