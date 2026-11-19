@@ -189,7 +189,7 @@ try {
         const el = document.querySelector('.credit');
         return { lines: [...el.querySelectorAll('span')].map((x) => x.textContent), links: el.querySelectorAll('a').length };
       });
-      ok(credit.lines.join(' / ') === 'Imagined by John / Created by Claude' && credit.links === 0, 'credit reads "Imagined by John" over "Created by Claude", with no link');
+      ok(credit.lines.join(' / ') === 'Imagined by John / Built with Claude' && credit.links === 0, 'credit reads "Imagined by John" over "Built with Claude", with no link');
     }
     if (shotsDir) await page.screenshot({ path: path.join(shotsDir, `home-${name.replace(/\W+/g, '-')}.png`) });
     await ctx.close();
