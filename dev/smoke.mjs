@@ -71,7 +71,7 @@ try {
       return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
     }`;
     // [selector, selector whose background it sits on]
-    const homePairs = [['.wordmark', 'body'], ['.credit', 'body'], ['.credit a', 'body'], ['#annoying', '#annoying'], ['#links a', 'body'], ['.dlg-desc', '.dlg-panel'], ['.dlg-file', '.dlg-panel'], ['.dlg-titlebar', '.dlg-titlebar'], ['#sound', '#sound']];
+    const homePairs = [['.wordmark', 'body'], ['.credit', 'body'], ['#annoying', '#annoying'], ['#links a', 'body'], ['.dlg-desc', '.dlg-panel'], ['.dlg-file', '.dlg-panel'], ['.dlg-titlebar', '.dlg-titlebar'], ['#sound', '#sound']];
     const cvPairs = [['.panel', '.panel'], ['.page h2', '.panel'], ['.entry .when', '.panel'], ['.entry .what span', '.panel'], ['.page-head .file-name', 'body'], ['.page-foot', 'body'], ['.edit-note', '.panel']];
     const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 } });
     const page = await ctx.newPage();
@@ -165,7 +165,14 @@ try {
     ok(before.noScroll && before.frameVisible && after.noScroll && after.linksVisible,
       `${name}: no scrolling, game (${before.frame}) and revealed links fit on screen`);
     ok(before.place === expect && after.clear, `${name}: "this is annoying" sits ${expect} the game and never covers it (${before.place})`);
-    ok(before.credit && after.credit, `${name}: "Created with Claude" sits bottom-left without covering the game or the links`);
+    ok(before.credit && after.credit, `${name}: the credit sits bottom-left without covering the game or the links`);
+    if (name.startsWith('laptop')) {
+      const credit = await page.evaluate(() => {
+        const el = document.querySelector('.credit');
+        return { lines: [...el.querySelectorAll('span')].map((x) => x.textContent), links: el.querySelectorAll('a').length };
+      });
+      ok(credit.lines.join(' / ') === 'Imagined by John / Created by Claude' && credit.links === 0, 'credit reads "Imagined by John" over "Created by Claude", with no link');
+    }
     if (shotsDir) await page.screenshot({ path: path.join(shotsDir, `home-${name.replace(/\W+/g, '-')}.png`) });
     await ctx.close();
   }
