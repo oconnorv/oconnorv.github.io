@@ -6,7 +6,7 @@ import { Game } from './game/game.js';
 import { Renderer } from './game/render.js';
 import { Sound } from './game/audio.js';
 import { attachInput } from './game/input.js';
-import { STEP } from './game/constants.js';
+import { W, H, STEP } from './game/constants.js';
 import { FONT_FACE } from './game/fonts.js';
 
 const $ = (id) => document.getElementById(id);
@@ -24,6 +24,7 @@ const soundBtn = $('sound');
 const pauseBtn = $('pause-btn');
 const annoying = $('annoying');
 const links = $('links');
+const hudLinksBox = $('hud-links');
 
 const sound = new Sound();
 sound.setEnabled(saved.sound !== false); // sound is on unless the visitor turned it off before
@@ -89,11 +90,55 @@ window.addEventListener('resize', layout);
 compactQuery.addEventListener?.('change', layout);
 layout();
 
-// Redraw cached text once the display font has loaded.
+// Redraw cached text, and re-place the scoreboard links, once the display font has loaded.
 if (document.fonts) {
   document.fonts.load(FONT_FACE)
-    .then(() => renderer.cache.clear())
+    .then(() => { renderer.cache.clear(); placeHudLinks(); })
     .catch(() => {});
+}
+
+// ------------------------------------------------------------------ found files in the scoreboard are links
+
+// The game draws the scoreboard on the canvas. These links sit over its files and appear once a
+// file has been found. Being real links, they open in a new tab like every other page link.
+const hudLinks = new Map();
+for (const page of PAGES) {
+  const a = document.createElement('a');
+  a.className = 'hud-link';
+  a.href = page.url;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.dataset.page = page.id;
+  a.setAttribute('aria-label', page.label);
+  a.hidden = true;
+  a.addEventListener('click', () => {
+    game.markOpened(page.id);
+    game.pause('user'); // a page opened in a background tab can't cost a life
+    a.blur();
+  });
+  hudLinksBox.append(a);
+  hudLinks.set(page.id, a);
+}
+
+// Placed in percentages of the frame, so they follow the game at any size.
+function placeHudLinks() {
+  const pct = (v, of) => `${(v / of) * 100}%`;
+  for (const { page, x, y, w, h } of renderer.hudFiles()) {
+    const s = hudLinks.get(page.id).style;
+    s.left = pct(x - 3, W);
+    s.top = pct(y - 3, H);
+    s.width = pct(w + 6, W);
+    s.height = pct(h + 6, H);
+  }
+}
+placeHudLinks();
+
+// Found files stay found, so a change in the count is the only thing to watch for.
+let hudFound = -1;
+function syncHudLinks() {
+  if (game.found.size === hudFound) return;
+  hudFound = game.found.size;
+  for (const [id, a] of hudLinks) a.hidden = !game.found.has(id);
 }
 
 // ------------------------------------------------------------------ main loop (fixed 120 Hz steps)
@@ -108,6 +153,7 @@ function tick(now) {
     acc -= STEP;
   }
   renderer.draw(game);
+  syncHudLinks();
   requestAnimationFrame(tick);
 }
 requestAnimationFrame(tick);
@@ -185,11 +231,14 @@ pauseBtn.addEventListener('click', () => {
 });
 syncPauseButton();
 
+// "this is annoying" shows the four links (and pauses, so reading them costs nothing); pressing
+// it again hides them.
 annoying.addEventListener('click', () => {
-  game.pause('user');
-  annoying.textContent = 'yeah, but it’s fun';
-  annoying.setAttribute('aria-expanded', 'true');
-  links.classList.add('shown');
+  const open = !links.classList.contains('shown');
+  if (open) game.pause('user');
+  annoying.textContent = open ? 'yeah, but it’s fun' : 'this is annoying';
+  annoying.setAttribute('aria-expanded', String(open));
+  links.classList.toggle('shown', open);
   annoying.blur();
 });
 for (const a of links.querySelectorAll('a[data-page]')) {

@@ -142,6 +142,12 @@ body.home {
   -webkit-user-select: none;
   user-select: none;
 }
+/* Links over the found files in the game's scoreboard (the game draws the names; see main.js).
+   The layer lets clicks through to the game; only the links themselves take them. */
+.hud-links { position: absolute; inset: 0; pointer-events: none; }
+.hud-link { position: absolute; pointer-events: auto; border-bottom: 2px solid transparent; }
+.hud-link[hidden] { display: none; }
+.hud-link:hover { border-bottom-color: var(--gold); }
 
 .side {
   display: flex;

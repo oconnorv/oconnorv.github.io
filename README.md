@@ -55,7 +55,7 @@ node dev/smoke.mjs --shots /tmp/shots
 ```
 
 Browser checks with Playwright: no console errors, no scrolling at five screen sizes, controls,
-pause, sound setting, the "this is annoying" button and the file dialog. `--shots` also saves
+pause, sound setting, the "this is annoying" button, the file dialog and the score-bar file links. `--shots` also saves
 screenshots of every level.
 
 ## Publishing

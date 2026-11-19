@@ -268,6 +268,17 @@ try {
     ok((await g('game.paused')) === true, 'pressing it pauses the game');
     await page.keyboard.press('KeyP');
     ok((await g('game.paused')) === false && (await page.textContent('#annoying')) === 'yeah, but it’s fun', 'P then resumes without re-pressing the button');
+    await page.click('#annoying');
+    const closed = await page.evaluate(() => ({
+      text: document.getElementById('annoying').textContent,
+      vis: getComputedStyle(document.getElementById('links')).visibility,
+      expanded: document.getElementById('annoying').getAttribute('aria-expanded'),
+    }));
+    ok(closed.text === 'this is annoying' && closed.vis === 'hidden' && closed.expanded === 'false', 'pressing it again hides the links and says "this is annoying" again');
+    ok((await g('game.paused')) === false, 'hiding the links leaves the game running');
+    await page.click('#annoying');
+    ok((await page.evaluate(() => getComputedStyle(document.getElementById('links')).visibility)) === 'visible', 'a third press shows the links again');
+    await page.keyboard.press('KeyP');
 
     // the file dialog
     await page.evaluate(() => window.__bitstream.game.debugSpawnFile('cv'));
@@ -305,6 +316,33 @@ try {
     await page.waitForSelector('#file-dialog:not([hidden])', { timeout: 3000 });
     await page.keyboard.press('KeyP');
     ok((await page.isHidden('#file-dialog')) && !(await g('game.paused')), 'P in the dialog still works too');
+
+    // found files in the scoreboard are links (cv, about and contact have been caught by now)
+    const hud = await page.evaluate(() => {
+      const c = document.getElementById('game').getBoundingClientRect();
+      return [...document.querySelectorAll('.hud-link')].map((a) => {
+        const r = a.getBoundingClientRect();
+        return {
+          id: a.dataset.page,
+          shown: !a.hidden && r.width > 0,
+          newTab: a.target === '_blank',
+          inBar: r.top >= c.top && r.bottom <= c.top + c.height * (54 / 600) && r.left >= c.left + c.width * 0.6 && r.right <= c.right,
+        };
+      });
+    });
+    const shownIds = hud.filter((h) => h.shown).map((h) => h.id).sort().join(', ');
+    ok(shownIds === 'about, contact, cv', `found files in the score bar are links and the others aren't (${shownIds || 'none'})`);
+    ok(hud.filter((h) => h.shown).every((h) => h.inBar && h.newTab), 'each sits over its file in the score bar and opens in a new tab');
+    const [aboutTab] = await Promise.all([ctx.waitForEvent('page'), page.click('.hud-link[data-page="about"]')]);
+    await aboutTab.waitForLoadState();
+    ok(aboutTab.url().endsWith('/about.html') && (await g('game.opened.has("about")')), 'clicking ABOUT in the score bar opens its page and marks it opened');
+    await aboutTab.close();
+    await page.bringToFront();
+    await g('(game.start(0), 0)'); // a fresh level: the ball waits on the paddle
+    const [cvTab] = await Promise.all([ctx.waitForEvent('page'), page.click('.hud-link[data-page="cv"]')]);
+    await cvTab.close();
+    await page.bringToFront();
+    ok((await g('game.paused')) === true && (await g('game.balls[0].stuck')) === true, 'clicking a score-bar link pauses the game and does not launch the ball');
     await ctx.close();
   }
 

@@ -8,6 +8,11 @@ import { font } from './fonts.js';
 
 const { W, H, FIELD, HUD_H, PADDLE_Y, PADDLE_H, BALL_R } = C;
 
+// The scoreboard: a row of labels, then a row of big values; the files start at HUD_FILES_X.
+const HUD_LY = 15;
+const HUD_VY = 39;
+const HUD_FILES_X = 512;
+
 // The ball is a 6x6 grid of 2px "pixels" (12px across, matching BALL_R).
 const DISC = ['..##..', '.####.', '######', '######', '.####.', '..##..'];
 const DISC_SHADE = ['......', '......', '.....#', '....##', '...##.', '......'];
@@ -306,8 +311,8 @@ export class Renderer {
   // Two rows: labels on top, big values underneath, in left-aligned groups.
   drawHud(g) {
     const ctx = this.ctx;
-    const LY = 15;
-    const VY = 39;
+    const LY = HUD_LY;
+    const VY = HUD_VY;
     label(ctx, 'SCORE', 20, LY);
     text(ctx, String(g.score).padStart(7, '0'), 20, VY, 20, T.text, 'left');
     label(ctx, 'HI', 150, LY);
@@ -320,14 +325,26 @@ export class Renderer {
     const shown = Math.min(lives, 4);
     for (let i = 0; i < shown; i++) drawMiniPaddle(ctx, 384 + i * 25, VY);
     if (lives > shown) text(ctx, `+${lives - shown}`, 384 + shown * 25, VY, 12, T.text, 'left');
-    label(ctx, 'FILES', 512, LY);
-    let x = 512;
-    for (const p of this.pages) {
-      const on = g.found.has(p.id);
-      drawDocIcon(ctx, x, VY - 8, 12, 16, on ? T.gold : T.fileOff);
-      text(ctx, p.hud, x + 16, VY, 12, on ? T.gold : T.fileOffText, 'left');
-      x += 16 + ctx.measureText(p.hud).width + 11;
+    label(ctx, 'FILES', HUD_FILES_X, LY);
+    for (const { page, x, y } of this.hudFiles()) {
+      const on = g.found.has(page.id);
+      drawDocIcon(ctx, x, y, 12, 16, on ? T.gold : T.fileOff);
+      text(ctx, page.hud, x + 16, VY, 12, on ? T.gold : T.fileOffText, 'left');
     }
+  }
+
+  // Where each file sits in the scoreboard: the box around its icon and name, in game
+  // coordinates. main.js puts a link over each file that has been found.
+  hudFiles() {
+    const ctx = this.ctx;
+    ctx.font = font(12);
+    let x = HUD_FILES_X;
+    return this.pages.map((page) => {
+      const w = 16 + ctx.measureText(page.hud).width; // icon, gap, name
+      const spot = { page, x, y: HUD_VY - 8, w, h: 16 };
+      x += w + 11;
+      return spot;
+    });
   }
 
   dim(a = 0.6) {
