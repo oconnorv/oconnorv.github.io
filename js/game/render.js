@@ -198,17 +198,13 @@ export class Renderer {
       const y = Math.round(p.y - p.h / 2);
       if (p.file) {
         const page = this.pages.find((q) => q.id === p.file);
-        ctx.fillStyle = T.text;
-        ctx.fillRect(x - 2, y - 2, p.w + 4, p.h + 4);
-        bevelRect(ctx, x, y, p.w, p.h, T.filePill.base, T.filePill.hi, T.filePill.lo, 2);
-        drawDocIcon(ctx, x + 6, y + 4, 11, p.h - 8, T.text);
-        text(ctx, page ? page.pill : 'FILE', x + p.w / 2 + 7, p.y + 0.5, 11, T.ink);
+        drawPill(ctx, x, y, p.w, p.h, T.filePill.base, T.filePill.hi, T.filePill.lo, T.text, 2);
+        drawDocIcon(ctx, x + 11, y + 4, 11, p.h - 8, T.text);
+        text(ctx, page ? page.pill : 'FILE', x + p.w / 2 + 9, p.y + 0.5, 11, T.ink);
       } else {
         const def = POWERUPS[p.kind];
         const col = color(def.good ? def.color : 'danger');
-        ctx.fillStyle = T.ink;
-        ctx.fillRect(x - 1, y - 1, p.w + 2, p.h + 2);
-        bevelRect(ctx, x, y, p.w, p.h, col, lighten(col, 0.55), darken(col, 0.45), 2);
+        drawPill(ctx, x, y, p.w, p.h, col, lighten(col, 0.55), darken(col, 0.45), T.ink, 1);
         text(ctx, def.label, p.x, p.y + 0.5, 11, !def.good || isDark(col) ? T.text : T.ink);
       }
     }
@@ -477,6 +473,39 @@ function panel(ctx, x, y, w, h) {
   ctx.strokeStyle = T.accent;
   ctx.lineWidth = 1;
   ctx.strokeRect(x + 4.5, y + 4.5, w - 9, h - 9);
+}
+
+// Capsule outline: a rectangle whose ends are half-circles.
+function pillPath(ctx, x, y, w, h) {
+  const r = h / 2;
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arc(x + w - r, y + r, r, -Math.PI / 2, Math.PI / 2);
+  ctx.lineTo(x + r, y + h);
+  ctx.arc(x + r, y + r, r, Math.PI / 2, (Math.PI * 3) / 2);
+  ctx.closePath();
+}
+
+// A power-up capsule in the flat style: solid colour, a light band along the top and a dark band
+// along the bottom (the same bevel as the bricks, following the rounded ends), and a small shine.
+function drawPill(ctx, x, y, w, h, base, hi, lo, edge, edgeW) {
+  pillPath(ctx, x - edgeW, y - edgeW, w + edgeW * 2, h + edgeW * 2);
+  ctx.fillStyle = edge;
+  ctx.fill();
+  ctx.save();
+  pillPath(ctx, x, y, w, h);
+  ctx.clip();
+  ctx.fillStyle = base;
+  ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = hi;
+  ctx.fillRect(x, y, w, 3);
+  ctx.fillStyle = lo;
+  ctx.fillRect(x, y + h - 3, w, 3);
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  pillPath(ctx, x + h * 0.4, y + 1, Math.min(16, w * 0.22), 2.5);
+  ctx.fill();
+  ctx.restore();
 }
 
 // Rectangle with a light top/left edge and a dark bottom/right edge.
