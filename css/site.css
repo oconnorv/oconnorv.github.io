@@ -162,8 +162,9 @@ body.home {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
-  font: 14px/1.4 var(--ui);
+  gap: 10px;
+  font: 13px/1.4 var(--pixel);
+  letter-spacing: .5px;
   white-space: nowrap;
 }
 .links.shown { visibility: visible; }
@@ -181,7 +182,7 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
   .topbar { height: 48px; padding: 0 10px; }
   .wordmark { font-size: 14px; line-height: 1.15; white-space: normal; }
   #stage { padding: 0 8px 8px; }
-  body.layout-bottom .links { gap: 12px; font-size: 12px; }
+  body.layout-bottom .links { gap: 12px; font-size: 12px; letter-spacing: 0; }
 }
 @media (max-height: 520px) {
   .topbar { height: 40px; }
@@ -198,7 +199,7 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
   .top-buttons { flex-direction: column; align-items: flex-start; }
   #stage { padding: 0 8px 0 0; }
   .play { grid-template-columns: auto var(--side-w); align-items: center; }
-  .links { font-size: 12px; }
+  .links { font-size: 11px; gap: 8px; letter-spacing: 0; }
   .annoying { font-size: 11px; padding: 5px 8px; white-space: normal; max-width: 100%; text-align: left; }
   .btn { font-size: 10px; }
   .play-spacer { display: none; }
