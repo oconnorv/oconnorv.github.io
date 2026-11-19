@@ -36,7 +36,7 @@ export class Game {
     this.explosions = [];
     this.paddle = { x: W / 2, vx: 0, w: C.PADDLE_W };
     this.effects = freshEffects();
-    this.fx = { particles: [], texts: [], flares: [], shake: 0, flash: 0 };
+    this.fx = { texts: [], flares: [], shake: 0, flash: 0 };
     this.banner = null;
     this.laserCd = 0;
     this.stats = { bricks: 0, lost: 0 };
@@ -437,7 +437,6 @@ export class Game {
     this.stats.bricks++;
     const cx = br.x + br.w / 2;
     const cy = br.y + br.h / 2;
-    this.burst(cx, cy, br.color, br.maxHp > 1 ? 14 : 9);
     this.emit('sfx', { name: 'brick', row: br.r });
     if (br.file) this.spawnFilePill(br.file, cx, cy);
     else if (br.mystery) this.spawnPill(cx, cy, true);
@@ -686,15 +685,6 @@ export class Game {
     this.fx.shake = Math.max(0, this.fx.shake - 40 * dt);
     this.fx.flash = Math.max(0, this.fx.flash - dt);
     if (this.headless) return;
-    const ps = this.fx.particles;
-    for (let i = ps.length - 1; i >= 0; i--) {
-      const q = ps[i];
-      q.life -= dt;
-      if (q.life <= 0) { ps.splice(i, 1); continue; }
-      q.vy += 700 * dt;
-      q.x += q.vx * dt;
-      q.y += q.vy * dt;
-    }
     const ts = this.fx.texts;
     for (let i = ts.length - 1; i >= 0; i--) {
       const q = ts[i];
@@ -706,15 +696,6 @@ export class Game {
     for (let i = fl.length - 1; i >= 0; i--) {
       fl[i].t += dt;
       if (fl[i].t >= fl[i].life) fl.splice(i, 1);
-    }
-  }
-
-  burst(x, y, color, n) {
-    if (this.headless) return;
-    for (let i = 0; i < n; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const s = 60 + Math.random() * 200;
-      this.fx.particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 80, life: 0.4 + Math.random() * 0.4, max: 0.8, color, size: 2 + Math.random() * 3 });
     }
   }
 

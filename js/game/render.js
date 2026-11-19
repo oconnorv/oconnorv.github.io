@@ -67,7 +67,6 @@ export class Renderer {
       this.drawLasers(g);
       this.drawPaddle(g);
       this.drawBalls(g);
-      this.drawParticles(g);
       if (g.level.dark && g.mode !== 'over') this.drawDarkness(g);
       this.drawBursts(g);
       this.drawTexts(g);
@@ -223,17 +222,6 @@ export class Renderer {
       ctx.fillStyle = T.laserCore;
       ctx.fillRect(Math.round(z.x), Math.round(z.y) - 10, 1, 12);
     }
-  }
-
-  drawParticles(g) {
-    const ctx = this.ctx;
-    for (const q of g.fx.particles) {
-      ctx.globalAlpha = Math.min(1, q.life / 0.25);
-      ctx.fillStyle = q.color;
-      const s = Math.round(q.size);
-      ctx.fillRect(Math.round(q.x - s / 2), Math.round(q.y - s / 2), s, s);
-    }
-    ctx.globalAlpha = 1;
   }
 
   // Explosions and "file detected" bursts: expanding square outlines.
