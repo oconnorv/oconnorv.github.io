@@ -121,12 +121,15 @@ try {
     await page.keyboard.press('KeyP');
     ok((await g('game.paused')) === true, 'P pauses');
     const t0 = await g('game.levelTime');
-    await page.waitForTimeout(300);
+    await page.keyboard.press('Space');
+    ok((await g('game.paused')) === true, 'Space in the first half second of a pause is ignored');
+    await page.waitForTimeout(600);
     ok((await g('game.levelTime')) === t0, 'nothing moves while paused');
     await page.keyboard.press('Space');
-    ok((await g('game.paused')) === true, 'Space does not unpause (only P does)');
+    ok((await g('game.paused')) === false, 'Space resumes from a pause');
     await page.keyboard.press('KeyP');
-    ok((await g('game.paused')) === false, 'P resumes');
+    await page.keyboard.press('KeyP');
+    ok((await g('game.paused')) === false, 'P toggles pause on and off');
     ok((await page.evaluate(() => scrollY)) === 0, 'Space and arrows never scroll the page');
 
     // lasers and the sticky paddle use Space too
@@ -173,7 +176,10 @@ try {
     ok((await g('game.paused')) && (await page.textContent('#dlg-file')) === 'CV.PDF', 'catching a file pauses the game and shows the dialog');
     await page.keyboard.press('Space');
     await page.keyboard.press('Space');
-    ok((await page.isVisible('#file-dialog')) && (await g('game.paused')), 'Space does nothing while the dialog is open');
+    ok((await page.isVisible('#file-dialog')) && (await g('game.paused')), 'Space mashed as the file drops does not skip the dialog');
+    await page.waitForTimeout(600); // past the half-second guard: a key-repeat (held Space) must still be ignored
+    await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', key: ' ', repeat: true })));
+    ok((await page.isVisible('#file-dialog')), 'a held-down Space (key repeat) does not skip the dialog');
     if (shotsDir) await page.screenshot({ path: path.join(shotsDir, 'dialog.png') });
     const [tab] = await Promise.all([ctx.waitForEvent('page'), page.keyboard.press('Enter')]);
     await tab.waitForLoadState();
@@ -183,8 +189,9 @@ try {
     await tab.close();
     await page.bringToFront();
     if (shotsDir) await page.screenshot({ path: path.join(shotsDir, 'paused.png') });
-    await page.keyboard.press('KeyP');
-    ok((await g('game.paused')) === false, 'P resumes after coming back');
+    await page.waitForTimeout(600);
+    await page.keyboard.press('Space');
+    ok((await g('game.paused')) === false, 'Space resumes after coming back from the page');
     const before = await g('game.score');
     await page.evaluate(() => window.__bitstream.game.debugSpawnFile('cv'));
     await page.waitForTimeout(700);
@@ -192,8 +199,13 @@ try {
 
     await page.evaluate(() => window.__bitstream.game.debugSpawnFile('about'));
     await page.waitForSelector('#file-dialog:not([hidden])', { timeout: 3000 });
+    await page.waitForTimeout(600);
+    await page.keyboard.press('Space');
+    ok((await page.isHidden('#file-dialog')) && !(await g('game.paused')), 'Space in the dialog means "keep playing"');
+    await page.evaluate(() => window.__bitstream.game.debugSpawnFile('contact'));
+    await page.waitForSelector('#file-dialog:not([hidden])', { timeout: 3000 });
     await page.keyboard.press('KeyP');
-    ok((await page.isHidden('#file-dialog')) && !(await g('game.paused')), 'P in the dialog means "keep playing"');
+    ok((await page.isHidden('#file-dialog')) && !(await g('game.paused')), 'P in the dialog still works too');
     await ctx.close();
   }
 

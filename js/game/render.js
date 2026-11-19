@@ -430,7 +430,7 @@ export class Renderer {
     this.dim(g.pauseReason === 'file' ? 0.75 : 0.62);
     if (g.pauseReason === 'file') return; // the "file recovered" dialog sits on top
     bigText(this.ctx, 'PAUSED', W / 2, 286, 48, WHITE);
-    if (blink(g.t)) text(this.ctx, 'PRESS P TO RESUME', W / 2, 346, 20, CYAN, 'center', true);
+    if (blink(g.t)) text(this.ctx, 'PRESS SPACE TO RESUME', W / 2, 346, 20, CYAN, 'center', true);
   }
 
   drawGameOver(g) {

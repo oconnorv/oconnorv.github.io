@@ -33,6 +33,7 @@ renderer.reducedMotion = motionQuery.matches;
 motionQuery.addEventListener?.('change', (e) => { renderer.reducedMotion = e.matches; });
 
 let dialogPage = null;
+let pausedAt = 0;
 
 const game = new Game({
   pages: PAGES,
@@ -43,7 +44,10 @@ const game = new Game({
     else if (type === 'file') openDialog(d.id);
     else if (type === 'hiscore') save({ hi: d.hi });
     else if (type === 'progress') save({ maxLevel: d.maxLevel });
-    else if (type === 'pause' && d.reason === 'user') sound.play('pause');
+    else if (type === 'pause') {
+      pausedAt = performance.now();
+      if (d.reason === 'user') sound.play('pause');
+    }
     if (type === 'pause' || type === 'resume' || type === 'mode' || type === 'level') syncPauseButton();
   },
 });
@@ -132,7 +136,7 @@ function closeDialog() {
 
 const dialogOpen = () => !dialog.hidden;
 
-// Opening the page leaves the game paused; the visitor presses P when they come back.
+// Opening the page leaves the game paused; the visitor presses Space (or P) when they come back.
 dlgOpen.addEventListener('click', () => {
   if (dialogPage) game.markOpened(dialogPage.id);
   closeDialog();
@@ -207,6 +211,13 @@ attachInput({
       closeDialog();
       game.resume();
     } else game.togglePause();
+  },
+  // Space while paused or in the dialog continues the game. Presses in the first half second are
+  // ignored, so Space that was being mashed to fire lasers when a file dropped doesn't skip the dialog.
+  onContinue() {
+    if (performance.now() - pausedAt < 500) return;
+    if (dialogOpen()) closeDialog();
+    game.resume();
   },
   onEscape() {
     if (dialogOpen()) {

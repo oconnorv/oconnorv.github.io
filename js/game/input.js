@@ -1,9 +1,10 @@
 import { W } from './constants.js';
 
 // Keyboard, mouse and touch.
-// Space (also W, the up arrow, or a click/tap) launches the ball and fires lasers. P pauses.
+// Space (also W, the up arrow, or a click/tap) launches the ball and fires lasers, and continues
+// the game when it's paused or showing the "file recovered" dialog. P pauses and unpauses.
 // Space never scrolls the page or presses a focused button.
-export function attachInput({ game, canvas, sound, onPause, onEscape, onToggleSound, isDialogOpen, debugKeys }) {
+export function attachInput({ game, canvas, sound, onPause, onContinue, onEscape, onToggleSound, isDialogOpen, debugKeys }) {
   const LEFT = new Set(['ArrowLeft', 'KeyA']);
   const RIGHT = new Set(['ArrowRight', 'KeyD']);
   const FIRE = new Set(['Space', 'ArrowUp', 'KeyW']);
@@ -16,8 +17,13 @@ export function attachInput({ game, canvas, sound, onPause, onEscape, onToggleSo
       if (!e.repeat) onPause();
       return;
     }
-    // While the "file recovered" dialog is open only Enter/Tab (handled by the browser), P and Esc
-    // do anything. Space is ignored so a player holding it to fire lasers can't dismiss the dialog.
+    // Paused or in the dialog: Space continues the game. A held-down Space (key repeat) is ignored,
+    // so a player firing lasers when a file drops can't skip the dialog by accident.
+    if (e.code === 'Space' && (game.paused || isDialogOpen())) {
+      if (!e.repeat) onContinue();
+      return;
+    }
+    // Otherwise, while the dialog is open only Enter/Tab (handled by the browser) and Esc do anything.
     if (isDialogOpen()) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (LEFT.has(e.code) || RIGHT.has(e.code) || FIRE.has(e.code) || e.code === 'ArrowDown') e.preventDefault();
