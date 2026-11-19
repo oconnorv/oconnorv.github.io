@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>O'Connor V</title>
+  <title>John O'Connor V</title>
   <meta name="description" content="BITSTREAM: a digital preservation brick-breaker. Four files are hidden in the bricks.">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="O'Connor V &mdash; BITSTREAM">
+  <meta property="og:title" content="John O'Connor V &mdash; BITSTREAM">
   <meta property="og:description" content="A digital preservation brick-breaker. Four files are hidden in the bricks.">
   <meta property="og:image" content="https://oconnorv.com/img/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
@@ -18,7 +18,7 @@
 </head>
 <body class="home">
   <header class="topbar">
-    <div class="wordmark">O'CONNOR V</div>
+    <div class="wordmark"><span>John</span> <span>O'Connor V</span></div>
     <div class="top-buttons">
       <button id="pause-btn" class="btn grey" type="button" aria-pressed="false">PAUSE</button>
       <button id="sound" class="btn" type="button" aria-pressed="true">SOUND: ON</button>
@@ -26,6 +26,8 @@
   </header>
 
   <main id="stage">
+    <div class="play">
+    <div class="play-spacer" aria-hidden="true"></div>
     <div id="frame">
       <canvas id="game" role="img" aria-label="BITSTREAM, a brick-breaker game. Arrow keys or A and D move the paddle, Space launches the ball and fires lasers, P pauses."></canvas>
       <div id="file-dialog" class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" hidden>
@@ -46,17 +48,17 @@
         </div>
       </div>
     </div>
+    <aside class="side">
+      <button id="annoying" class="annoying" type="button" aria-expanded="false" aria-controls="links">this is annoying</button>
+      <nav id="links" class="links" aria-label="Pages">
+        <a href="cv.html" target="_blank" rel="noopener" data-page="cv">CV</a>
+        <a href="failures.html" target="_blank" rel="noopener" data-page="failures">CV of Failures</a>
+        <a href="about.html" target="_blank" rel="noopener" data-page="about">About Me</a>
+        <a href="contact.html" target="_blank" rel="noopener" data-page="contact">Contact Me</a>
+      </nav>
+    </aside>
+    </div>
   </main>
-
-  <footer class="bottombar">
-    <button id="annoying" class="annoying" type="button" aria-expanded="false" aria-controls="links">this is annoying</button>
-    <nav id="links" class="links" aria-label="Pages">
-      <a href="cv.html" target="_blank" rel="noopener" data-page="cv">CV</a>
-      <a href="failures.html" target="_blank" rel="noopener" data-page="failures">CV of Failures</a>
-      <a href="about.html" target="_blank" rel="noopener" data-page="about">About Me</a>
-      <a href="contact.html" target="_blank" rel="noopener" data-page="contact">Contact Me</a>
-    </nav>
-  </footer>
 
   <noscript>
     <p class="noscript">This page is a game and needs JavaScript. Here are the pages:

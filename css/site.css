@@ -15,6 +15,9 @@
   --dim: #8b96b8;
   --pixel: 'Silkscreen', 'Courier New', monospace;
   --ui: Verdana, Tahoma, Geneva, sans-serif;
+  --side-w: 170px;   /* the column beside the game that holds "this is annoying" */
+  --side-gap: 16px;
+  --panel-h: 64px;   /* height of that panel when it sits under the game instead */
 }
 
 * { box-sizing: border-box; }
@@ -32,7 +35,9 @@ a:hover { color: #fff; }
   color: var(--cyan);
   text-shadow: 3px 3px 0 var(--shadow);
   text-decoration: none;
+  text-transform: uppercase;
 }
+.wordmark span { display: inline-block; white-space: nowrap; }
 a.wordmark:hover { color: #7fe4ff; }
 
 /* ---------------------------------------------------------------- buttons: flat, square, bevelled */
@@ -49,6 +54,7 @@ a.wordmark:hover { color: #7fe4ff; }
   background: var(--cyan);
   box-shadow: 0 0 0 1px var(--ink);
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
   user-select: none;
 }
@@ -87,7 +93,15 @@ body.home {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 16px;
+  padding: 0 16px 16px;
+}
+/* Game in the middle, "this is annoying" in a column on its right, an empty column on its left
+   to keep the game centred. js/main.js sizes the game and picks .layout-side or .layout-bottom. */
+.play {
+  display: grid;
+  grid-template-columns: var(--side-w) auto var(--side-w);
+  column-gap: var(--side-gap);
+  align-items: end;
 }
 #frame { position: relative; box-shadow: 0 0 0 2px var(--line), 0 0 0 3px var(--ink); }
 #game {
@@ -99,14 +113,11 @@ body.home {
   user-select: none;
 }
 
-.bottombar {
-  flex: none;
-  height: 78px;
+.side {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px 0;
+  align-items: flex-start;
+  gap: 10px;
 }
 .annoying {
   appearance: none;
@@ -117,15 +128,16 @@ body.home {
   color: var(--dim);
   background: var(--panel);
   cursor: pointer;
+  white-space: nowrap;
 }
 .annoying:hover { color: var(--text); border-color: var(--cyan); }
 .annoying[aria-expanded='true'] { color: var(--gold); border-color: var(--gold); }
 .links {
   visibility: hidden;
   display: flex;
-  flex-wrap: nowrap;
-  justify-content: center;
-  gap: 18px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
   font: 12px/1.4 var(--ui);
   white-space: nowrap;
 }
@@ -133,29 +145,35 @@ body.home {
 .links a { text-decoration: none; }
 .links a:hover { text-decoration: underline; }
 
+/* Narrow screens: the panel goes under the game, links in a row. */
+body.layout-bottom .play { grid-template-columns: auto; row-gap: var(--side-gap); justify-items: center; }
+body.layout-bottom .play-spacer { display: none; }
+body.layout-bottom .side { align-items: center; height: var(--panel-h); }
+body.layout-bottom .links { flex-direction: row; gap: 18px; }
+
 @media (max-width: 560px) {
+  :root { --side-gap: 10px; }
   .topbar { height: 48px; padding: 0 10px; }
-  .wordmark { font-size: 18px; }
-  #stage { padding: 0 8px; }
-  .bottombar { height: 70px; padding-top: 8px; }
-  .links { gap: 12px; font-size: 11px; }
+  .wordmark { font-size: 14px; line-height: 1.15; white-space: normal; }
+  #stage { padding: 0 8px 8px; }
+  body.layout-bottom .links { gap: 12px; font-size: 11px; }
 }
 @media (max-height: 520px) {
   .topbar { height: 40px; }
   .wordmark { font-size: 16px; }
-  .bottombar { height: 58px; padding-top: 6px; gap: 4px; }
   .annoying { padding: 3px 12px; font-size: 11px; }
 }
 
-/* Phones held sideways: put the header and footer beside the game instead of above and below it. */
+/* Phones held sideways: header in a column on the left, game, then the panel on the right. */
 @media (orientation: landscape) and (max-height: 500px) {
-  body.home { display: grid; grid-template-columns: 136px minmax(0, 1fr) 136px; grid-template-rows: minmax(0, 1fr); }
+  :root { --side-w: 118px; --side-gap: 10px; }
+  body.home { display: grid; grid-template-columns: 136px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
   .topbar { height: auto; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 12px; padding: 12px 8px; }
-  .wordmark { font-size: 15px; }
+  .wordmark { font-size: 13px; line-height: 1.25; white-space: normal; }
   .top-buttons { flex-direction: column; align-items: flex-start; }
-  #stage { padding: 8px 0; }
-  .bottombar { height: auto; justify-content: center; gap: 10px; padding: 12px 8px; }
-  .links { flex-direction: column; align-items: center; gap: 6px; font-size: 12px; }
+  #stage { padding: 0 8px 0 0; }
+  .play { grid-template-columns: auto var(--side-w); align-items: center; }
+  .play-spacer { display: none; }
 }
 
 .noscript { position: fixed; inset: auto 0 0 0; margin: 0; padding: 10px; text-align: center; background: #000; }
@@ -256,7 +274,7 @@ body.home {
   .page { max-width: none; padding: 0; }
   .page-head .btn, .edit-note, .page-foot { display: none !important; }
   .page-head { border-color: #000; }
-  .wordmark, .page h1 { color: #000; text-shadow: none; font-family: Georgia, serif; }
+  .wordmark, .page h1 { color: #000; text-shadow: none; font-family: Georgia, serif; text-transform: none; }
   .panel { border: 0; box-shadow: none; background: none; padding: 0; }
   .page h2 { color: #000; border-color: #000; font-family: Georgia, serif; }
   .entry .when, .page-head .file-name { color: #000; font-family: Georgia, serif; }

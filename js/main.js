@@ -50,9 +50,30 @@ const game = new Game({
 
 // ------------------------------------------------------------------ sizing: always fits, never scrolls
 
+// The "this is annoying" button sits beside the game (with a matching empty column on the
+// left so the game stays centred) or, when that would make the game smaller, underneath it.
+// Phones held sideways always use the side column; their header moves to the left instead.
+const compactQuery = matchMedia('(orientation: landscape) and (max-height: 500px)');
+
 function layout() {
-  const r = stage.getBoundingClientRect();
-  const w = Math.floor(Math.min(r.width, (r.height * 4) / 3));
+  const cs = getComputedStyle(stage);
+  const availW = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const availH = stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const vars = getComputedStyle(document.documentElement);
+  const sideW = parseFloat(vars.getPropertyValue('--side-w')) + parseFloat(vars.getPropertyValue('--side-gap'));
+  const panelH = parseFloat(vars.getPropertyValue('--panel-h')) + parseFloat(vars.getPropertyValue('--side-gap'));
+  const fit = (w, h) => Math.max(100, Math.floor(Math.min(w, (h * 4) / 3)));
+  let side = true;
+  let w;
+  if (compactQuery.matches) w = fit(availW - sideW, availH);
+  else {
+    const besideW = fit(availW - 2 * sideW, availH);
+    const belowW = fit(availW, availH - panelH);
+    side = besideW >= belowW;
+    w = Math.max(besideW, belowW);
+  }
+  document.body.classList.toggle('layout-side', side);
+  document.body.classList.toggle('layout-bottom', !side);
   const h = Math.floor((w * 3) / 4);
   frame.style.width = `${w}px`;
   frame.style.height = `${h}px`;
@@ -60,6 +81,7 @@ function layout() {
 }
 new ResizeObserver(layout).observe(stage);
 window.addEventListener('resize', layout);
+compactQuery.addEventListener?.('change', layout);
 layout();
 
 // Redraw cached text once the pixel font has loaded.

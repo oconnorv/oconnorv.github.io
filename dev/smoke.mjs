@@ -58,14 +58,14 @@ try {
 
   // ------------------------------------------------------------ the home page never scrolls
   const sizes = [
-    { name: 'laptop 1366x768', viewport: { width: 1366, height: 768 } },
-    { name: 'desktop 1920x1080', viewport: { width: 1920, height: 1080 } },
-    { name: 'small laptop 1280x720', viewport: { width: 1280, height: 720 } },
-    { name: 'phone portrait', ...devices['iPhone 13'] },
-    { name: 'phone landscape', ...devices['iPhone 13 landscape'] },
+    { name: 'laptop 1366x768', expect: 'beside', viewport: { width: 1366, height: 768 } },
+    { name: 'desktop 1920x1080', expect: 'beside', viewport: { width: 1920, height: 1080 } },
+    { name: 'small laptop 1280x720', expect: 'beside', viewport: { width: 1280, height: 720 } },
+    { name: 'phone portrait', expect: 'below', ...devices['iPhone 13'] },
+    { name: 'phone landscape', expect: 'beside', ...devices['iPhone 13 landscape'] },
   ];
   for (const size of sizes) {
-    const { name, ...opts } = size;
+    const { name, expect, ...opts } = size;
     const ctx = await browser.newContext(opts);
     const page = await ctx.newPage();
     await page.goto(base, { waitUntil: 'networkidle' });
@@ -74,10 +74,14 @@ try {
       const d = document.documentElement;
       const f = document.getElementById('frame').getBoundingClientRect();
       const l = document.getElementById('links').getBoundingClientRect();
+      const b = document.getElementById('annoying').getBoundingClientRect();
+      const overlaps = (a) => a.left < f.right && a.right > f.left && a.top < f.bottom && a.bottom > f.top;
       return {
+        place: b.left >= f.right - 1 && b.bottom <= f.bottom + 1 ? 'beside' : b.top >= f.bottom - 1 ? 'below' : 'other',
+        clear: !overlaps(b) && !overlaps(l),
         noScroll: d.scrollHeight <= innerHeight + 1 && d.scrollWidth <= innerWidth + 1,
         frameVisible: f.top >= 0 && f.left >= 0 && f.bottom <= innerHeight + 1 && f.right <= innerWidth + 1 && f.width > 200,
-        linksVisible: l.bottom <= innerHeight + 1 && l.right <= innerWidth + 1 && l.left >= 0,
+        linksVisible: l.bottom <= innerHeight + 1 && l.right <= innerWidth + 1 && l.left >= 0 && l.top >= 0,
         frame: `${Math.round(f.width)}x${Math.round(f.height)}`,
       };
     });
@@ -87,6 +91,7 @@ try {
     const after = await fits();
     ok(before.noScroll && before.frameVisible && after.noScroll && after.linksVisible,
       `${name}: no scrolling, game (${before.frame}) and revealed links fit on screen`);
+    ok(before.place === expect && after.clear, `${name}: "this is annoying" sits ${expect} the game and never covers it (${before.place})`);
     if (shotsDir) await page.screenshot({ path: path.join(shotsDir, `home-${name.replace(/\W+/g, '-')}.png`) });
     await ctx.close();
   }
