@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12306b"/><stop offset="1" stop-color="#01040f"/></linearGradient>
+    <linearGradient id="c" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b6f0ff"/><stop offset=".5" stop-color="#2fd5ff"/><stop offset="1" stop-color="#0e6a82"/></linearGradient>
+    <linearGradient id="m" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc2f2"/><stop offset=".5" stop-color="#ff4fd8"/><stop offset="1" stop-color="#8a1f72"/></linearGradient>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2b0"/><stop offset=".5" stop-color="#ffd23f"/><stop offset="1" stop-color="#9c7400"/></linearGradient>
+    <radialGradient id="ball" cx=".35" cy=".35" r=".75"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#c8f4ff"/><stop offset="1" stop-color="#2fd5ff"/></radialGradient>
+    <linearGradient id="pad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#6f7f97"/><stop offset="1" stop-color="#dbe5f1"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="12" fill="url(#bg)"/>
+  <rect x="6" y="8" width="16" height="8" rx="2" fill="url(#c)"/>
+  <rect x="24" y="8" width="16" height="8" rx="2" fill="url(#m)"/>
+  <rect x="42" y="8" width="16" height="8" rx="2" fill="url(#g)"/>
+  <rect x="15" y="18" width="16" height="8" rx="2" fill="url(#g)"/>
+  <rect x="33" y="18" width="16" height="8" rx="2" fill="url(#c)"/>
+  <circle cx="38" cy="39" r="5.5" fill="url(#ball)"/>
+  <rect x="15" y="50" width="34" height="7" rx="3.5" fill="url(#pad)"/>
+</svg>

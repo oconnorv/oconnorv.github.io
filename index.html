@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>O'Connor V</title>
+  <meta name="description" content="BITSTREAM: a digital preservation brick-breaker. Four files are hidden in the bricks.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="O'Connor V &mdash; BITSTREAM">
+  <meta property="og:description" content="A digital preservation brick-breaker. Four files are hidden in the bricks.">
+  <meta property="og:image" content="https://oconnorv.com/img/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#040c24">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/silkscreen-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body class="home">
+  <header class="topbar">
+    <div class="wordmark">O'CONNOR V</div>
+    <div class="top-buttons">
+      <button id="pause-btn" class="aqua small grey" type="button" aria-pressed="false">PAUSE</button>
+      <button id="sound" class="aqua small" type="button" aria-pressed="true">SOUND: ON</button>
+    </div>
+  </header>
+
+  <main id="stage">
+    <div id="frame">
+      <canvas id="game" role="img" aria-label="BITSTREAM, a brick-breaker game. Arrow keys or A and D move the paddle, W or the up arrow launches the ball, Space pauses."></canvas>
+      <div id="file-dialog" class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" hidden>
+        <div class="dlg-panel">
+          <div class="dlg-titlebar" id="dlg-title">FILE RECOVERED</div>
+          <div class="dlg-body">
+            <div class="dlg-icon" aria-hidden="true"></div>
+            <div>
+              <div id="dlg-file" class="dlg-file">CV.PDF</div>
+              <div id="dlg-desc" class="dlg-desc"></div>
+            </div>
+          </div>
+          <div class="dlg-buttons">
+            <a id="dlg-open" class="aqua" href="cv.html" target="_blank" rel="noopener">OPEN IN NEW TAB</a>
+            <button id="dlg-keep" class="aqua grey" type="button">KEEP PLAYING</button>
+          </div>
+          <div class="dlg-hint">ENTER: OPEN &nbsp;&middot;&nbsp; SPACE: KEEP PLAYING &nbsp;&middot;&nbsp; ESC: CLOSE</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bottombar">
+    <button id="annoying" class="annoying" type="button" aria-expanded="false" aria-controls="links">this is annoying</button>
+    <nav id="links" class="links" aria-label="Pages">
+      <a href="cv.html" target="_blank" rel="noopener" data-page="cv">CV</a>
+      <a href="failures.html" target="_blank" rel="noopener" data-page="failures">CV of Failures</a>
+      <a href="about.html" target="_blank" rel="noopener" data-page="about">About Me</a>
+      <a href="contact.html" target="_blank" rel="noopener" data-page="contact">Contact Me</a>
+    </nav>
+  </footer>
+
+  <noscript>
+    <p class="noscript">This page is a game and needs JavaScript. Here are the pages:
+      <a href="cv.html">CV</a> &middot; <a href="failures.html">CV of Failures</a> &middot;
+      <a href="about.html">About Me</a> &middot; <a href="contact.html">Contact Me</a></p>
+  </noscript>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
