@@ -44,6 +44,22 @@ const stamp = spawnSync(process.execPath, [path.join(root, 'dev', 'stamp.mjs'), 
 ok(stamp.status === 0, `version tags are up to date${stamp.status ? ` (${stamp.stderr.trim()})` : ''}`);
 
 const browser = await chromium.launch();
+// FONT=orbitron (or mono, pixel) runs every check with that display font.
+if (process.env.FONT) {
+  const newContext = browser.newContext.bind(browser);
+  browser.newContext = async (opts) => {
+    const ctx = await newContext(opts);
+    await ctx.addInitScript((f) => {
+      try {
+        const s = JSON.parse(localStorage.getItem('bitstream.v1') || '{}');
+        s.font = f;
+        localStorage.setItem('bitstream.v1', JSON.stringify(s));
+      } catch { /* ignore */ }
+    }, process.env.FONT);
+    return ctx;
+  };
+  console.log(`(display font: ${process.env.FONT})`);
+}
 try {
   // ------------------------------------------------------------ every page loads without errors
   {

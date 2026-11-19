@@ -4,9 +4,9 @@
 import * as C from './constants.js';
 import { POWERUPS } from './powerups.js';
 import { T, color } from './themes.js';
+import { font } from './fonts.js';
 
 const { W, H, FIELD, HUD_H, PADDLE_Y, PADDLE_H, BALL_R } = C;
-const FONT = 'Silkscreen, "Courier New", monospace';
 
 // The ball is a 6x6 grid of 2px "pixels" (12px across, matching BALL_R).
 const DISC = ['..##..', '.####.', '######', '######', '.####.', '..##..'];
@@ -165,7 +165,7 @@ export class Renderer {
       ctx.globalAlpha = hidden ? 0.18 : 1; // link rot: the ball fades to a faint ghost while it lasts
       const tr = b.trail;
       if (!hidden && !b.stuck && tr.length >= 4) {
-        ctx.font = `8px ${FONT}`;
+        ctx.font = font(8);
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         const n = tr.length / 2;
@@ -278,7 +278,7 @@ export class Renderer {
 
   drawRain(t) {
     const ctx = this.ctx;
-    ctx.font = `8px ${FONT}`;
+    ctx.font = font(8);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     for (const col of this.rain) {
@@ -422,7 +422,7 @@ function makeRain() {
 
 // Small pixel-font text. `shadow` adds a hard 1px drop-shadow.
 function text(ctx, str, x, y, size, color, align = 'center', shadow = false) {
-  ctx.font = `${size}px ${FONT}`;
+  ctx.font = font(size);
   ctx.textAlign = align;
   ctx.textBaseline = 'middle';
   if (shadow) {
@@ -440,11 +440,11 @@ function label(ctx, str, x, y, align = 'left') {
 // Big headline: flat face colour, dark outline, hard offset shadow.
 function bigText(ctx, str, x, y, size, face, maxW = W - 90) {
   ctx.save();
-  ctx.font = `700 ${size}px ${FONT}`;
+  ctx.font = font(size, 'heavy');
   const wide = ctx.measureText(str).width;
   if (wide > maxW) {
     size = Math.floor((size * maxW) / wide);
-    ctx.font = `700 ${size}px ${FONT}`;
+    ctx.font = font(size, 'heavy');
   }
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -615,14 +615,14 @@ function drawBrickSprite(ctx, w, h, fill, br) {
       ctx.fill();
     }
     ctx.restore();
-    ctx.font = `${Math.min(10, bh - 6)}px ${FONT}`;
+    ctx.font = font(Math.min(10, bh - 6));
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = T.badText;
     ctx.fillText('ERR', w / 2, h / 2 + 1);
   }
   if (br.mystery) {
-    ctx.font = `${Math.min(16, bh - 4)}px ${FONT}`;
+    ctx.font = font(Math.min(16, bh - 4));
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = T.ink;
