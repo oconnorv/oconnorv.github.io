@@ -280,7 +280,7 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
 }
 
 /* ---------------------------------------------------------------- content pages */
-.page { max-width: 820px; margin: 0 auto; padding: 24px 16px 48px; }
+.page { max-width: 820px; margin: 0 auto; padding: 24px 16px 48px; font-size: 14px; } /* DejaVu reads large; 14px is plenty */
 .page-head {
   display: flex;
   align-items: center;
@@ -317,7 +317,7 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
 .page ul { padding-left: 20px; }
 .page li { margin: 4px 0; }
 .entry { display: grid; grid-template-columns: 136px 1fr; gap: 4px 16px; margin: 10px 0; }
-.entry .when { color: var(--card-when); font: 14px/24px var(--ui); }
+.entry .when { color: var(--card-when); font: 13px/22.4px var(--ui); } /* line = 14px × 1.6, so dates sit level with the text */
 .entry .what strong { color: var(--card-strong); }
 .entry .what span { color: var(--card-dim); }
 /* CV: an organisation (in capitals, as in the PDF), then each role with its description and bullets. */
@@ -330,12 +330,13 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
 /* Citations, with a hanging indent like the PDF. Long words may break so nothing runs off a phone. */
 .page .refs { list-style: none; padding: 0; margin: 10px 0 0; }
 .page sup { line-height: 0; } /* ESOPI² without pushing its line apart */
+.nowrap { white-space: nowrap; } /* number ranges stay on one line */
 .refs li { margin: 0 0 12px; padding-left: 2em; text-indent: -2em; overflow-wrap: anywhere; }
 @media (max-width: 560px) {
   .panel { padding: 18px 16px; }
   .entry { grid-template-columns: 1fr; gap: 0; }
 }
-.edit-note { border: 1px dashed var(--note); color: var(--note); padding: 8px 12px; font-size: 14px; margin: 0 0 14px; }
+.edit-note { border: 1px dashed var(--note); color: var(--note); padding: 8px 12px; font-size: 13px; margin: 0 0 14px; }
 .page-foot { margin-top: 22px; text-align: center; font: 12px/1.6 var(--ui); letter-spacing: .5px; color: var(--foot); }
 /* 404 page */
 .page-404 { text-align: center; padding-top: 8vh; }
