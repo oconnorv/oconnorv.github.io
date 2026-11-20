@@ -22,7 +22,7 @@ export const LEVELS = [
     grid: wordToGrid('JOHN', (i) => 'abcd'[i]),
   },
   {
-    name: "O'CONNOR", card: 'O ’ C O N N O R', top: 150, bh: 22, speed: [280, 420], drop: 0.26, bad: 0.3,
+    name: "O'CONNOR", card: "O ' C O N N O R", top: 150, bh: 22, speed: [280, 420], drop: 0.26, bad: 0.3,
     palette: {
       a: { color: CYAN }, b: { color: MAGENTA, hp: 2 }, c: { color: LIME }, d: { color: ORANGE, hp: 2 },
       e: { color: CYAN }, f: { color: MAGENTA, hp: 2 }, g: { color: LIME },

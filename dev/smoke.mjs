@@ -88,8 +88,8 @@ try {
     }`;
     // [selector, selector whose background it sits on]
     const homePairs = [['.wordmark', 'body'], ['.credit', 'body'], ['#annoying', '#annoying'], ['#links a', 'body'], ['.dlg-desc', '.dlg-panel'], ['.dlg-file', '.dlg-panel'], ['.dlg-titlebar', '.dlg-titlebar'], ['#sound', '#sound']];
-    const cvPairs = [['.panel', '.panel'], ['.page .lede', '.panel'], ['.page h2', '.panel'], ['.entry .when', '.panel'], ['.panel .org', '.panel'], ['.refs a', '.panel'], ['.page-head .file-name', 'body'], ['.page-foot', 'body']];
-    const failuresPairs = [['.edit-note', '.panel'], ['.entry .what span', '.panel']];
+    const cvPairs = [['.panel', '.panel'], ['.page h2', '.panel'], ['.entry .when', '.panel'], ['.panel .org', '.panel'], ['.refs a', '.panel'], ['.page-head .file-name', 'body'], ['.page-foot', 'body']];
+    const failuresPairs = [['.page .lede', '.panel'], ['.edit-note', '.panel'], ['.entry .what span', '.panel']];
     const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 } });
     const page = await ctx.newPage();
     const check = (pairs) => page.evaluate(([pairs, src]) => {
@@ -298,10 +298,10 @@ try {
       vis: getComputedStyle(document.getElementById('links')).visibility,
       n: document.querySelectorAll('#links a').length,
     }));
-    ok(ann.text === 'yeah, but it’s fun' && ann.vis === 'visible' && ann.n === 4, '"this is annoying" becomes "yeah, but it\'s fun" and shows the 4 links');
+    ok(ann.text === "yeah, but it's fun" && ann.vis === 'visible' && ann.n === 4, '"this is annoying" becomes "yeah, but it\'s fun" and shows the 4 links');
     ok((await g('game.paused')) === true, 'pressing it pauses the game');
     await page.keyboard.press('KeyP');
-    ok((await g('game.paused')) === false && (await page.textContent('#annoying')) === 'yeah, but it’s fun', 'P then resumes without re-pressing the button');
+    ok((await g('game.paused')) === false && (await page.textContent('#annoying')) === "yeah, but it's fun", 'P then resumes without re-pressing the button');
     await page.click('#annoying');
     const closed = await page.evaluate(() => ({
       text: document.getElementById('annoying').textContent,

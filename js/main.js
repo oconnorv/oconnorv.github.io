@@ -236,7 +236,7 @@ syncPauseButton();
 annoying.addEventListener('click', () => {
   const open = !links.classList.contains('shown');
   if (open) game.pause('user');
-  annoying.textContent = open ? 'yeah, but it’s fun' : 'this is annoying';
+  annoying.textContent = open ? "yeah, but it's fun" : 'this is annoying';
   annoying.setAttribute('aria-expanded', String(open));
   links.classList.toggle('shown', open);
   annoying.blur();
