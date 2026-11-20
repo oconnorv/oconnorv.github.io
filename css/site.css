@@ -3,6 +3,7 @@
 @font-face { font-family: 'VT323'; src: url('../fonts/vt323-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
 @font-face { font-family: 'DejaVu Sans'; src: url('../fonts/dejavu-sans-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
 @font-face { font-family: 'DejaVu Sans'; src: url('../fonts/dejavu-sans-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'DejaVu Sans'; src: url('../fonts/dejavu-sans-400-italic.woff2') format('woff2'); font-weight: 400; font-style: italic; font-display: swap; }
 
 :root {
   /* The display font, VT323: header, buttons, links and headings (the game's own text uses
@@ -319,6 +320,17 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
 .entry .when { color: var(--card-when); font: 14px/24px var(--ui); }
 .entry .what strong { color: var(--card-strong); }
 .entry .what span { color: var(--card-dim); }
+/* CV: an organisation (in capitals, as in the PDF), then each role with its description and bullets. */
+.panel .org { margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--card-strong); }
+.panel .role { margin: 0; font-weight: 700; color: var(--card-strong); }
+.entry .what p, .item p { margin: 0; }
+.entry .what .role ~ .role { margin-top: 14px; }
+.entry .what ul { margin: 4px 0 6px; }
+.item { margin: 10px 0 14px; }
+/* Citations, with a hanging indent like the PDF. Long words may break so nothing runs off a phone. */
+.page .refs { list-style: none; padding: 0; margin: 10px 0 0; }
+.page sup { line-height: 0; } /* ESOPI² without pushing its line apart */
+.refs li { margin: 0 0 12px; padding-left: 2em; text-indent: -2em; overflow-wrap: anywhere; }
 @media (max-width: 560px) {
   .panel { padding: 18px 16px; }
   .entry { grid-template-columns: 1fr; gap: 0; }

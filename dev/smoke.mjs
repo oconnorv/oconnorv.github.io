@@ -88,7 +88,8 @@ try {
     }`;
     // [selector, selector whose background it sits on]
     const homePairs = [['.wordmark', 'body'], ['.credit', 'body'], ['#annoying', '#annoying'], ['#links a', 'body'], ['.dlg-desc', '.dlg-panel'], ['.dlg-file', '.dlg-panel'], ['.dlg-titlebar', '.dlg-titlebar'], ['#sound', '#sound']];
-    const cvPairs = [['.panel', '.panel'], ['.page h2', '.panel'], ['.entry .when', '.panel'], ['.entry .what span', '.panel'], ['.page-head .file-name', 'body'], ['.page-foot', 'body'], ['.edit-note', '.panel']];
+    const cvPairs = [['.panel', '.panel'], ['.page .lede', '.panel'], ['.page h2', '.panel'], ['.entry .when', '.panel'], ['.panel .org', '.panel'], ['.refs a', '.panel'], ['.page-head .file-name', 'body'], ['.page-foot', 'body']];
+    const failuresPairs = [['.edit-note', '.panel'], ['.entry .what span', '.panel']];
     const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 } });
     const page = await ctx.newPage();
     const check = (pairs) => page.evaluate(([pairs, src]) => {
@@ -103,7 +104,25 @@ try {
     const low = await check(homePairs);
     await page.goto(base + 'cv.html', { waitUntil: 'networkidle' });
     low.push(...(await check(cvPairs)));
+    await page.goto(base + 'failures.html', { waitUntil: 'networkidle' });
+    low.push(...(await check(failuresPairs)));
     ok(low.length === 0, `page text is at least 4.5:1 against its background${low.length ? ` (low: ${low.join(', ')})` : ''}`);
+
+    // The CV page is public: no contact details (checked by pattern, so none are written here),
+    // and the Robert Wood Johnson Foundation proposal lives on the CV of Failures instead.
+    await page.goto(base + 'cv.html', { waitUntil: 'networkidle' });
+    const cv = await page.evaluate(() => ({
+      text: document.body.innerText,
+      contactLinks: document.querySelectorAll('a[href^="mailto:"], a[href^="tel:"]').length,
+    }));
+    const personal = [
+      ['an email address', /[\w.%+-]+@[\w-]+\.[\w.]+/],
+      ['a phone number', /\d{3}\D{1,3}\d{3}\D{1,3}\d{4}/],
+      ['a street address', /\b\d{2,6}\s+[A-Z][a-z]+\s+(Avenue|Ave|Street|St|Road|Rd|Drive|Dr|Lane|Ln|Boulevard|Blvd|Court|Ct)\b/],
+      ['a ZIP code', /\b[A-Z]{2}\s+\d{5}\b/],
+    ].filter(([, re]) => re.test(cv.text)).map(([what]) => what);
+    ok(personal.length === 0 && cv.contactLinks === 0, `the CV page shows no contact details${personal.length ? ` (found ${personal.join(', ')})` : ''}`);
+    ok(!/Robert Wood Johnson/i.test(cv.text), 'the CV page leaves out the Robert Wood Johnson Foundation proposal');
 
     // Every button shows readable text, normally and on hover (a link styled as a button once
     // inherited the panel's link colour and was blank until hovered).
@@ -139,6 +158,21 @@ try {
       [T.text, T.bg], [T.accent, T.bg], [T.gold, T.bg], [T.soft, T.bg], [T.softer, T.bg], [T.lifeText, T.bg], [T.dangerSoft, T.bg]];
     const lowGame = gamePairs.filter(([f, b]) => ratio(f, b) < 4.5).map(([f, b]) => `${f} on ${b} ${ratio(f, b).toFixed(2)}:1`);
     ok(lowGame.length === 0, `in-game text is at least 4.5:1${lowGame.length ? ` (low: ${lowGame.join(', ')})` : ''}`);
+  }
+
+  // ------------------------------------------------------------ the file pages fit a phone's width
+  {
+    const ctx = await browser.newContext(devices['iPhone 13']);
+    const page = await ctx.newPage();
+    const wide = [];
+    for (const p of ['cv.html', 'failures.html', 'about.html', 'contact.html', '404.html']) {
+      await page.goto(base + p, { waitUntil: 'networkidle' });
+      await page.evaluate(() => document.fonts.ready);
+      const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      if (over > 0) wide.push(`${p} by ${over}px`);
+    }
+    ok(wide.length === 0, `the file pages don't scroll sideways on a phone${wide.length ? ` (${wide.join(', ')})` : ''}`);
+    await ctx.close();
   }
 
   // ------------------------------------------------------------ the home page never scrolls
