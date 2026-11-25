@@ -4,9 +4,11 @@ The best way to reach me is email.
 
 ## Email
 
-name [at] oconnorv [dot] com
+first [at] oconnorv [dot] com
 
 ## Elsewhere
 
-- [LinkedIn](#)
-- [GitHub](#)
+- [LinkedIn](https://www.linkedin.com/in/oconnorv/)
+- [GitHub](https://github.com/oconnorv/)
+- [Twitter (never X 🙄)](https://x.com/TarHeelFoodways)
+- [Bluesky](https://bsky.app/profile/jocv.bsky.social)
