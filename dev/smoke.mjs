@@ -348,8 +348,10 @@ try {
       text: document.getElementById('annoying').textContent,
       vis: getComputedStyle(document.getElementById('links')).visibility,
       n: document.querySelectorAll('#links a').length,
+      names: [...document.querySelectorAll('#links a')].map((a) => a.textContent).join(', '),
     }));
     ok(ann.text === "yeah, but it's fun" && ann.vis === 'visible' && ann.n === 4, '"this is annoying" becomes "yeah, but it\'s fun" and shows the 4 links');
+    ok(ann.names === 'About, CV, CV of Failures, Contact', `the links read About, CV, CV of Failures, Contact (${ann.names})`);
     ok((await g('game.paused')) === true, 'pressing it pauses the game');
     await page.keyboard.press('KeyP');
     ok((await g('game.paused')) === false && (await page.textContent('#annoying')) === "yeah, but it's fun", 'P then resumes without re-pressing the button');

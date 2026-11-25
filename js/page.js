@@ -1,4 +1,4 @@
-// Shared script for the file pages (CV, CV of Failures, About Me, Contact Me).
+// Shared script for the file pages (About, CV, CV of Failures, Contact).
 
 // [CLOSE TAB] closes this tab and drops the visitor back on the paused game.
 // If the browser won't let a script close the tab (e.g. the page was opened directly), go home instead.

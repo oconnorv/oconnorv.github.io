@@ -2,10 +2,10 @@
 
 The words on the four "recovered file" pages live in these files:
 
+- **About**: `about.md`
 - **CV**: `cv.md`
 - **CV of Failures**: `failures.md`
-- **About Me**: `about.md`
-- **Contact Me**: `contact.md`
+- **Contact**: `contact.md`
 
 ## Making a change
 
