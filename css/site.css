@@ -316,6 +316,7 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
 .page h2:first-of-type { margin-top: 18px; }
 .page .lede { color: var(--card-dim); margin: 0; }
 .page ul { padding-left: 20px; }
+.page ol { padding-left: 24px; }
 .page li { margin: 4px 0; }
 .entry { display: grid; grid-template-columns: 136px 1fr; gap: 4px 16px; margin: 10px 0; }
 .entry .when { color: var(--card-when); font: 13px/22.4px var(--ui); } /* line = 14px × 1.6, so dates sit level with the text */

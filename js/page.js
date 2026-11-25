@@ -36,15 +36,16 @@ if (main) {
 //   ### Name | Dates           an entry, with the dates in the left column ("### Name" for none)
 //   **Role**                   a line that is all bold, inside an entry: a role title
 //   - text                     a list item: a bullet inside an entry, a plain line under a section
+//   1. text                    a numbered list item (2., 3. and so on follow on)
 //   anything else              a paragraph (each line is its own; blank lines are just spacing)
 // The first paragraph after the title is its introduction.
 function renderPage(text) {
   const out = [];
-  let list = '';      // the list being written: 'bullets' (in an entry) or 'lines' (under a section)
+  let list = '';      // the list being written: 'bullets' (in an entry), 'lines' (under a section) or 'numbers'
   let block = '';     // the entry being written: 'entry' (with dates) or 'item' (without)
   let intro = false;  // true right after the title
   const endList = () => {
-    if (list) out.push('</ul>');
+    if (list) out.push(list === 'numbers' ? '</ol>' : '</ul>');
     list = '';
   };
   const endBlock = () => {
@@ -90,6 +91,19 @@ function renderPage(text) {
         list = kind;
       }
       out.push(`<li>${inline(item[1])}</li>`);
+      intro = false;
+      continue;
+    }
+
+    const numbered = line.match(/^(\d+)[.)]\s+(.+)$/);
+    if (numbered) {
+      if (list !== 'numbers') {
+        endList();
+        const start = Number(numbered[1]);
+        out.push(start === 1 ? '<ol>' : `<ol start="${start}">`);
+        list = 'numbers';
+      }
+      out.push(`<li>${inline(numbered[2])}</li>`);
       intro = false;
       continue;
     }

@@ -207,6 +207,8 @@ try {
         problems.push(`${name}: ${got.sections} of ${want.sections} sections, ${got.entries} of ${want.entries} entries`);
       }
       if (/\*\*|\]\(/.test(got.text)) problems.push(`${name}: formatting marks showing`);
+      const tags = got.text.match(/<\/?[a-z][a-z0-9]*\b[^>]*>/gi);
+      if (tags) problems.push(`${name}: HTML tags showing as text (${[...new Set(tags)].join(' ')})`);
     }
     ok(problems.length === 0, `each file page shows all of its content/*.md text${problems.length ? ` (${problems.join('; ')})` : ''}`);
 
@@ -219,6 +221,8 @@ try {
     const out = await page.evaluate(() => renderPage('# T\n<b onclick="x()">hi</b>\n[bad](javascript:alert(1)) [ok](https://example.org/a_b)'));
     ok(out.includes('&lt;b onclick=&quot;x()&quot;&gt;hi&lt;/b&gt;') && out.includes('<a href="#">bad</a>') && out.includes('<a href="https://example.org/a_b">ok</a>'),
       'the page reader shows HTML as plain text and drops unsafe links');
+    const nums = await page.evaluate(() => renderPage('## S\nBecause\n1. one\n2. *two*\nAfter'));
+    ok(nums.includes('<p>Because</p>\n<ol>\n<li>one</li>\n<li><em>two</em></li>\n</ol>\n<p>After</p>'), 'the page reader makes numbered lists from "1." lines');
     await ctx.close();
   }
 

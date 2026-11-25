@@ -26,6 +26,7 @@ If something comes out wrong, edit the file again. Or click **History** on the f
   - The name shows exactly as you type it: organisations are in capitals on the CV because they're typed that way.
 - `**Role title**` on a line of its own, inside an entry, is a role (bold).
 - `- Some text` is a list item. Inside an entry it's a bullet. Directly under a section heading it's a plain line with a hanging indent, like the publications.
+- `1. Some text`, then `2. More text` and so on, is a numbered list.
 - `**bold**`, `*italics*` and `[link text](https://example.org)` work anywhere.
 - `name [at] oconnorv [dot] com` shows as a clickable email address. Written this way, spam bots can't easily read it from this file or the page.
 
@@ -33,7 +34,7 @@ Also:
 
 - Each line is its own paragraph. Blank lines are just spacing, so use them freely.
 - The first paragraph after the title is shown as a lighter introduction.
-- Anything that looks like HTML shows as plain text, so you can't break the page layout by accident.
+- Anything that looks like HTML shows as plain text, so you can't break the page layout by accident. Tags like `<ol>` or `<b>` will appear on the page as written; use the formatting above instead.
 - Number ranges with an en dash, like `430–44`, are kept on one line.
 
 ## Example
