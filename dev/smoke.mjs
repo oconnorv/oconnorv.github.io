@@ -420,6 +420,11 @@ try {
     const shownIds = hud.filter((h) => h.shown).map((h) => h.id).sort().join(', ');
     ok(shownIds === 'about, contact, cv', `found files in the score bar are links and the others aren't (${shownIds || 'none'})`);
     ok(hud.filter((h) => h.shown).every((h) => h.inBar && h.newTab), 'each sits over its file in the score bar and opens in a new tab');
+    const order = await page.evaluate(() => ({
+      bar: [...document.querySelectorAll('.hud-link')].sort((a, b) => parseFloat(a.style.left) - parseFloat(b.style.left)).map((a) => a.dataset.page).join(', '),
+      links: [...document.querySelectorAll('#links a')].map((a) => a.dataset.page).join(', '),
+    }));
+    ok(order.bar === order.links, `the score bar lists the files in the same order as the links beside the game (${order.bar})`);
     const [aboutTab] = await Promise.all([ctx.waitForEvent('page'), page.click('.hud-link[data-page="about"]')]);
     await aboutTab.waitForLoadState();
     ok(aboutTab.url().endsWith('/about.html') && (await g('game.opened.has("about")')), 'clicking ABOUT in the score bar opens its page and marks it opened');
