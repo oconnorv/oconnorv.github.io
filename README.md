@@ -6,12 +6,15 @@ in a new tab. Plain HTML, CSS and JavaScript: no build step, no dependencies.
 
 ## Editing the pages
 
-The content lives in `cv.html`, `failures.html`, `about.html` and `contact.html`. Edit the text
-inside `<main class="panel">`; the `<!-- EDIT -->` comments mark the placeholders. The yellow
-"Placeholder" notes can be deleted once real content is in.
+The words on the four file pages live in plain text files in [`content/`](content/): `cv.md`,
+`failures.md`, `about.md` and `contact.md`. Edit them right on github.com (pencil icon, then
+**Commit changes**). The page updates in about a minute. [`content/README.md`](content/README.md)
+has the steps and the formatting. The HTML pages (`cv.html` and so on) only hold the header and
+footer; `js/page.js` reads the text file and builds the page.
 
-On the Contact page, the email address is put together by a script (to slow down scrapers):
-set `data-email-user` to the part before the @.
+On the Contact page, write the email address as `name [at] oconnorv [dot] com`. The page turns it
+into a clickable address, so it never appears whole in the file or the page source (to slow down
+scrapers).
 
 To rename a hidden file, change its label, or point it at a different page, edit `js/config.js`.
 
@@ -55,8 +58,9 @@ node dev/smoke.mjs --shots /tmp/shots
 ```
 
 Browser checks with Playwright: no console errors, no scrolling at five screen sizes, controls,
-pause, sound setting, the "this is annoying" button, the file dialog and the score-bar file links. `--shots` also saves
-screenshots of every level.
+pause, sound setting, the "this is annoying" button, the file dialog and the score-bar file links.
+It also checks that each file page shows all of its `content/*.md` text and that no contact details
+appear outside the Contact page. `--shots` also saves screenshots of every level.
 
 ## Publishing
 

@@ -39,6 +39,13 @@ for (let i = 0; i < 50; i++) {
   await new Promise((r) => setTimeout(r, 100));
 }
 
+// The file pages draw their text from content/*.md once they've loaded; wait until they have.
+const open = async (page, p) => {
+  const resp = await page.goto(base + p, { waitUntil: 'networkidle' });
+  if (/^(cv|failures|about|contact)\.html$/.test(p)) await page.waitForSelector('main[data-ready]', { timeout: 5000 });
+  return resp;
+};
+
 // Every page must point at the current version of each script and stylesheet (see dev/stamp.mjs).
 const stamp = spawnSync(process.execPath, [path.join(root, 'dev', 'stamp.mjs'), '--check'], { encoding: 'utf8' });
 ok(stamp.status === 0, `version tags are up to date${stamp.status ? ` (${stamp.stderr.trim()})` : ''}`);
@@ -53,7 +60,7 @@ try {
       const errors = [];
       page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
       page.on('pageerror', (e) => errors.push(e.message));
-      const resp = await page.goto(base + p, { waitUntil: 'networkidle' });
+      const resp = await open(page, p);
       await page.waitForTimeout(300);
       ok(resp.ok() && errors.length === 0, `/${p || 'index.html'} loads with no console errors${errors.length ? `: ${errors.join('; ')}` : ''}`);
       await page.close();
@@ -66,7 +73,7 @@ try {
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
     for (const [p, want] of [['', ['VT323 400', 'DejaVu Sans 400']], ['cv.html', ['VT323 400', 'DejaVu Sans 400', 'DejaVu Sans 700']]]) {
-      await page.goto(base + p, { waitUntil: 'networkidle' });
+      await open(page, p);
       const got = await page.evaluate(async () => {
         await document.fonts.ready;
         return [...document.fonts].filter((f) => f.status === 'loaded').map((f) => `${f.family.replace(/["']/g, '')} ${f.weight}`);
@@ -89,7 +96,7 @@ try {
     // [selector, selector whose background it sits on]
     const homePairs = [['.wordmark', 'body'], ['.credit', 'body'], ['#annoying', '#annoying'], ['#links a', 'body'], ['.dlg-desc', '.dlg-panel'], ['.dlg-file', '.dlg-panel'], ['.dlg-titlebar', '.dlg-titlebar'], ['#sound', '#sound']];
     const cvPairs = [['.panel', '.panel'], ['.page h2', '.panel'], ['.entry .when', '.panel'], ['.panel .org', '.panel'], ['.refs a', '.panel'], ['.page-head .file-name', 'body'], ['.page-foot', 'body']];
-    const failuresPairs = [['.page .lede', '.panel'], ['.edit-note', '.panel'], ['.entry .what span', '.panel']];
+    const failuresPairs = [['.page .lede', '.panel']];
     const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 } });
     const page = await ctx.newPage();
     const check = (pairs) => page.evaluate(([pairs, src]) => {
@@ -102,33 +109,40 @@ try {
     }, [pairs, contrast]);
     await page.goto(base, { waitUntil: 'networkidle' });
     const low = await check(homePairs);
-    await page.goto(base + 'cv.html', { waitUntil: 'networkidle' });
+    await open(page, 'cv.html');
     low.push(...(await check(cvPairs)));
-    await page.goto(base + 'failures.html', { waitUntil: 'networkidle' });
+    await open(page, 'failures.html');
     low.push(...(await check(failuresPairs)));
     ok(low.length === 0, `page text is at least 4.5:1 against its background${low.length ? ` (low: ${low.join(', ')})` : ''}`);
 
-    // The CV page is public: no contact details (checked by pattern, so none are written here),
-    // and the Robert Wood Johnson Foundation proposal lives on the CV of Failures instead.
-    await page.goto(base + 'cv.html', { waitUntil: 'networkidle' });
-    const cv = await page.evaluate(() => ({
-      text: document.body.innerText,
-      contactLinks: document.querySelectorAll('a[href^="mailto:"], a[href^="tel:"]').length,
-    }));
+    // These pages are public: no contact details (checked by pattern, so none are written here).
+    // Contact is the one page meant to show an email address. And the Robert Wood Johnson
+    // Foundation proposal lives on the CV of Failures, not the CV.
     const personal = [
       ['an email address', /[\w.%+-]+@[\w-]+\.[\w.]+/],
       ['a phone number', /\d{3}\D{1,3}\d{3}\D{1,3}\d{4}/],
       ['a street address', /\b\d{2,6}\s+[A-Z][a-z]+\s+(Avenue|Ave|Street|St|Road|Rd|Drive|Dr|Lane|Ln|Boulevard|Blvd|Court|Ct)\b/],
       ['a ZIP code', /\b[A-Z]{2}\s+\d{5}\b/],
-    ].filter(([, re]) => re.test(cv.text)).map(([what]) => what);
-    ok(personal.length === 0 && cv.contactLinks === 0, `the CV page shows no contact details${personal.length ? ` (found ${personal.join(', ')})` : ''}`);
-    ok(!/Robert Wood Johnson/i.test(cv.text), 'the CV page leaves out the Robert Wood Johnson Foundation proposal');
+    ];
+    const exposed = [];
+    for (const p of ['cv.html', 'failures.html', 'about.html']) {
+      await open(page, p);
+      const shown = await page.evaluate(() => ({
+        text: document.body.innerText,
+        contactLinks: document.querySelectorAll('a[href^="mailto:"], a[href^="tel:"]').length,
+      }));
+      const found = personal.filter(([, re]) => re.test(shown.text)).map(([what]) => what);
+      if (shown.contactLinks) found.push('a contact link');
+      if (found.length) exposed.push(`${p}: ${found.join(', ')}`);
+      if (p === 'cv.html') ok(!/Robert Wood Johnson/i.test(shown.text), 'the CV page leaves out the Robert Wood Johnson Foundation proposal');
+    }
+    ok(exposed.length === 0, `the CV, CV of Failures and About pages show no contact details${exposed.length ? ` (${exposed.join('; ')})` : ''}`);
 
     // Every button shows readable text, normally and on hover (a link styled as a button once
     // inherited the panel's link colour and was blank until hovered).
     const badButtons = [];
     for (const p of ['', 'cv.html', 'failures.html', 'about.html', 'contact.html', '404.html']) {
-      await page.goto(base + p, { waitUntil: 'networkidle' });
+      await open(page, p);
       const buttons = await page.locator('.btn, .annoying').all();
       for (const el of buttons) {
         const measure = () => el.evaluate((e, src) => {
@@ -166,12 +180,45 @@ try {
     const page = await ctx.newPage();
     const wide = [];
     for (const p of ['cv.html', 'failures.html', 'about.html', 'contact.html', '404.html']) {
-      await page.goto(base + p, { waitUntil: 'networkidle' });
+      await open(page, p);
       await page.evaluate(() => document.fonts.ready);
       const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       if (over > 0) wide.push(`${p} by ${over}px`);
     }
     ok(wide.length === 0, `the file pages don't scroll sideways on a phone${wide.length ? ` (${wide.join(', ')})` : ''}`);
+    await ctx.close();
+  }
+
+  // ------------------------------------------------------------ the file pages show all of their content/*.md
+  {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    const problems = [];
+    for (const name of ['cv', 'failures', 'about', 'contact']) {
+      const lines = fs.readFileSync(path.join(root, 'content', `${name}.md`), 'utf8').split(/\r?\n/).map((l) => l.trim());
+      const want = { sections: lines.filter((l) => /^##\s/.test(l)).length, entries: lines.filter((l) => /^###\s/.test(l)).length };
+      await open(page, `${name}.html`);
+      const got = await page.evaluate(() => {
+        const m = document.querySelector('main');
+        return { sections: m.querySelectorAll('h2').length, entries: m.querySelectorAll('.entry, .item').length, text: m.innerText };
+      });
+      if (/didn.t load/.test(got.text)) problems.push(`content/${name}.md didn't load`);
+      else if (got.sections !== want.sections || got.entries !== want.entries) {
+        problems.push(`${name}: ${got.sections} of ${want.sections} sections, ${got.entries} of ${want.entries} entries`);
+      }
+      if (/\*\*|\]\(/.test(got.text)) problems.push(`${name}: formatting marks showing`);
+    }
+    ok(problems.length === 0, `each file page shows all of its content/*.md text${problems.length ? ` (${problems.join('; ')})` : ''}`);
+
+    await open(page, 'contact.html');
+    const mail = await page.evaluate(() => [...document.querySelectorAll('main a[href^="mailto:"]')].map((a) => a.textContent));
+    ok(mail.length === 1 && /^[\w.+-]+@[\w-]+(\.[\w-]+)+$/.test(mail[0]), `the Contact page turns "name [at] ... [dot] com" into an email link (${mail.join(', ') || 'none'})`);
+
+    // The reader shows anything that looks like HTML as plain text, and links only to web pages,
+    // email addresses or this site.
+    const out = await page.evaluate(() => renderPage('# T\n<b onclick="x()">hi</b>\n[bad](javascript:alert(1)) [ok](https://example.org/a_b)'));
+    ok(out.includes('&lt;b onclick=&quot;x()&quot;&gt;hi&lt;/b&gt;') && out.includes('<a href="#">bad</a>') && out.includes('<a href="https://example.org/a_b">ok</a>'),
+      'the page reader shows HTML as plain text and drops unsafe links');
     await ctx.close();
   }
 
