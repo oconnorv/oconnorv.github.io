@@ -12,9 +12,9 @@ The words on the four file pages live in plain text files in [`content/`](conten
 has the steps and the formatting. The HTML pages (`cv.html` and so on) only hold the header and
 footer; `js/page.js` reads the text file and builds the page.
 
-On the Contact page, write the email address as `name [at] oconnorv [dot] com`. The page turns it
-into a clickable address, so it never appears whole in the file or the page source (to slow down
-scrapers).
+The Contact page gives the email address as a puzzle, `first[at]domain[dot]tld`, and shows it exactly
+as typed. It is never turned into a real address or a link, so only a person who can work it out
+can use it.
 
 To rename a hidden file, change its label, or point it at a different page, edit `js/config.js`.
 
@@ -57,8 +57,10 @@ twenty times.
 node dev/smoke.mjs --shots /tmp/shots
 ```
 
-Browser checks with Playwright: no console errors, no scrolling at five screen sizes, controls,
-pause, sound setting, the "this is annoying" button, the file dialog and the score-bar file links.
+Browser checks with Playwright (`npm install playwright`, then `npx playwright install chromium`,
+in any folder Node can find): no console errors, no scrolling at five screen sizes, controls,
+pause (by keyboard and by the PAUSE button), sound setting, the "this is annoying" button, the file
+dialog, the score-bar file links, and that every link and button is big enough to tap on a phone.
 It also checks that each file page shows all of its `content/*.md` text and that no contact details
 appear outside the Contact page. `--shots` also saves screenshots of every level.
 

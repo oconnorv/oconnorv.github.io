@@ -116,7 +116,7 @@ try {
     ok(low.length === 0, `page text is at least 4.5:1 against its background${low.length ? ` (low: ${low.join(', ')})` : ''}`);
 
     // These pages are public: no contact details (checked by pattern, so none are written here).
-    // Contact is the one page meant to show an email address. And the Robert Wood Johnson
+    // Contact gives its address only as a puzzle (checked further down). And the Robert Wood Johnson
     // Foundation proposal lives on the CV of Failures, not the CV.
     const personal = [
       ['an email address', /[\w.%+-]+@[\w-]+\.[\w.]+/],
@@ -213,8 +213,13 @@ try {
     ok(problems.length === 0, `each file page shows all of its content/*.md text${problems.length ? ` (${problems.join('; ')})` : ''}`);
 
     await open(page, 'contact.html');
-    const mail = await page.evaluate(() => [...document.querySelectorAll('main a[href^="mailto:"]')].map((a) => a.textContent));
-    ok(mail.length === 1 && /^[\w.+-]+@[\w-]+(\.[\w-]+)+$/.test(mail[0]), `the Contact page turns "name [at] ... [dot] com" into an email link (${mail.join(', ') || 'none'})`);
+    // The address is a puzzle for a person to work out: shown as typed, never a real address or a link.
+    const mail = await page.evaluate(() => ({
+      box: document.querySelector('main .email-box')?.textContent || '',
+      links: document.querySelectorAll('a[href^="mailto:"]').length,
+      real: /[\w.%+-]+@[\w-]+\.[\w.]+/.test(document.documentElement.innerHTML),
+    }));
+    ok(/\[at\].*\[dot\]/.test(mail.box) && mail.links === 0 && !mail.real, `the Contact page shows the address as written, with no real address or email link (${mail.box || 'none'})`);
 
     // The reader shows anything that looks like HTML as plain text, and links only to web pages,
     // email addresses or this site.
@@ -327,6 +332,12 @@ try {
 
     await page.evaluate(() => window.dispatchEvent(new Event('blur')));
     ok((await g('game.paused')) === true, 'leaving the window pauses the game');
+    // A visitor with only a mouse (or a switch, or voice control) has no Space or P to press.
+    ok((await page.isVisible('#pause-btn')) && (await page.textContent('#pause-btn')) === 'RESUME', 'a paused game shows a RESUME button, on a desktop too');
+    await page.click('#pause-btn');
+    ok((await g('game.paused')) === false && (await page.textContent('#pause-btn')) === 'PAUSE', 'the RESUME button resumes with the mouse alone');
+    await page.click('#pause-btn');
+    ok((await g('game.paused')) === true, 'the PAUSE button pauses with the mouse alone');
     await page.keyboard.press('KeyP');
 
     // sound toggle is remembered
@@ -425,6 +436,11 @@ try {
       links: [...document.querySelectorAll('#links a')].map((a) => a.dataset.page).join(', '),
     }));
     ok(order.bar === order.links, `the score bar lists the files in the same order as the links beside the game (${order.bar})`);
+    const hint = await page.evaluate(() => {
+      const el = document.getElementById(document.getElementById('annoying').getAttribute('aria-describedby'));
+      return el ? el.textContent : '';
+    });
+    ok(/links/.test(hint) && /pauses/.test(hint), '"this is annoying" tells screen readers what it does');
     const [aboutTab] = await Promise.all([ctx.waitForEvent('page'), page.click('.hud-link[data-page="about"]')]);
     await aboutTab.waitForLoadState();
     ok(aboutTab.url().endsWith('/about.html') && (await g('game.opened.has("about")')), 'clicking ABOUT in the score bar opens its page and marks it opened');
@@ -435,6 +451,33 @@ try {
     await cvTab.close();
     await page.bringToFront();
     ok((await g('game.paused')) === true && (await g('game.balls[0].stuck')) === true, 'clicking a score-bar link pauses the game and does not launch the ball');
+    await ctx.close();
+  }
+
+  // ------------------------------------------------------------ on a phone, everything is big enough to tap
+  {
+    const ctx = await browser.newContext(devices['iPhone 13']);
+    const page = await ctx.newPage();
+    await page.goto(base + '?debug=1', { waitUntil: 'networkidle' });
+    await page.evaluate(() => {
+      const { game, PAGES } = window.__bitstream;
+      game.start(0);
+      for (const p of PAGES) game.found.add(p.id);
+    });
+    await page.waitForTimeout(200);
+    await page.tap('#annoying');
+    const small = await page.evaluate(() => {
+      const boxes = [...document.querySelectorAll('.hud-link, #links a, .btn, .annoying')]
+        .filter((e) => e.getClientRects().length)
+        .map((e) => ({ name: e.id || e.className.split(' ')[0] + ':' + (e.dataset.page || ''), r: e.getBoundingClientRect() }));
+      const overlap = (a, b) => a.left < b.right - 0.5 && a.right > b.left + 0.5 && a.top < b.bottom - 0.5 && a.bottom > b.top + 0.5;
+      const bad = boxes.filter(({ r }) => r.width < 16 || r.height < 20).map(({ name, r }) => `${name} is ${Math.round(r.width)}x${Math.round(r.height)}`);
+      for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
+        if (overlap(boxes[i].r, boxes[j].r)) bad.push(`${boxes[i].name} overlaps ${boxes[j].name}`);
+      }
+      return bad;
+    });
+    ok(small.length === 0, `on a phone every link and button is at least 16px wide and 20px tall, and none overlap${small.length ? ` (${small.join(', ')})` : ''}`);
     await ctx.close();
   }
 

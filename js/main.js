@@ -25,6 +25,16 @@ const pauseBtn = $('pause-btn');
 const annoying = $('annoying');
 const links = $('links');
 const hudLinksBox = $('hud-links');
+const statusBox = $('status');
+const skipLink = $('skip');
+
+// The game is drawn on a canvas, which screen readers can't read, so the main events are also
+// written to a hidden status line that they read out.
+const announce = (words) => { statusBox.textContent = words; };
+
+// A mouse click or tap on a button hands the keyboard back to the game. A button pressed from the
+// keyboard keeps the focus, so keyboard and screen-reader users don't lose their place.
+const unfocus = (e) => { if (e.detail > 0) e.currentTarget.blur(); };
 
 const sound = new Sound();
 sound.setEnabled(saved.sound !== false); // sound is on unless the visitor turned it off before
@@ -33,23 +43,33 @@ const renderer = new Renderer(canvas, PAGES);
 const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
 renderer.reducedMotion = motionQuery.matches;
 motionQuery.addEventListener?.('change', (e) => { renderer.reducedMotion = e.matches; });
+const touchQuery = matchMedia('(pointer: coarse)');
+renderer.touch = touchQuery.matches;
+touchQuery.addEventListener?.('change', (e) => { renderer.touch = e.matches; still = ''; });
 
 let dialogPage = null;
 let pausedAt = 0;
+let still = ''; // which paused screen is on show ('user', 'blur' or 'file'): nothing moves, so it isn't drawn again
 
 const game = new Game({
   pages: PAGES,
   hi: saved.hi || 0,
   maxLevel: saved.maxLevel || 1,
   onEvent(type, d) {
-    if (type === 'sfx') sound.play(d.name, d);
-    else if (type === 'file') openDialog(d.id);
+    if (type === 'sfx') {
+      sound.play(d.name, d);
+      if (d.name === 'lose' && game.lives > 0) announce(game.lives === 1 ? 'Ball lost. Last life.' : `Ball lost. ${game.lives} lives left.`);
+    } else if (type === 'file') openDialog(d.id);
     else if (type === 'hiscore') save({ hi: d.hi });
     else if (type === 'progress') save({ maxLevel: d.maxLevel });
     else if (type === 'pause') {
       pausedAt = performance.now();
       if (d.reason === 'user') sound.play('pause');
-    }
+      if (d.reason !== 'file') announce('Game paused. Press Space to resume.');
+    } else if (type === 'resume') announce('Game resumed.');
+    else if (type === 'level') announce(`Level ${d.index + 1} of 12: ${game.level.name}. Press Space to launch the ball.`);
+    else if (type === 'mode' && d.mode === 'over') announce(`Game over. Score ${game.score}. Press Space to continue from level ${game.levelIndex + 1}.`);
+    else if (type === 'mode' && d.mode === 'win') announce(`Archive preserved. All 12 levels cleared. Final score ${game.score}. Press Space to play again.`);
     if (type === 'pause' || type === 'resume' || type === 'mode' || type === 'level') syncPauseButton();
   },
 });
@@ -83,7 +103,7 @@ function layout() {
   const h = Math.floor((w * 3) / 4);
   frame.style.width = `${w}px`;
   frame.style.height = `${h}px`;
-  renderer.resize(w, h, Math.min(window.devicePixelRatio || 1, 2.5));
+  if (renderer.resize(w, h, Math.min(window.devicePixelRatio || 1, 2.5))) still = '';
 }
 new ResizeObserver(layout).observe(stage);
 window.addEventListener('resize', layout);
@@ -93,7 +113,7 @@ layout();
 // Redraw cached text, and re-place the scoreboard links, once the display font has loaded.
 if (document.fonts) {
   document.fonts.load(FONT_FACE)
-    .then(() => { renderer.cache.clear(); placeHudLinks(); })
+    .then(() => { renderer.cache.clear(); placeHudLinks(); still = ''; })
     .catch(() => {});
 }
 
@@ -109,26 +129,28 @@ for (const page of PAGES) {
   a.target = '_blank';
   a.rel = 'noopener';
   a.dataset.page = page.id;
-  a.setAttribute('aria-label', page.label);
+  a.setAttribute('aria-label', `${page.label} (opens in a new tab)`);
   a.hidden = true;
-  a.addEventListener('click', () => {
+  a.addEventListener('click', (e) => {
     game.markOpened(page.id);
     game.pause('user'); // a page opened in a background tab can't cost a life
-    a.blur();
+    unfocus(e);
   });
   hudLinksBox.append(a);
   hudLinks.set(page.id, a);
 }
 
-// Placed in percentages of the frame, so they follow the game at any size.
+// Placed in percentages of the frame, so they follow the game at any size. Each link covers its
+// file's name and the strip of score bar above it, and reaches almost to its neighbours: on a
+// phone the name alone is too small to tap.
 function placeHudLinks() {
   const pct = (v, of) => `${(v / of) * 100}%`;
   for (const { page, x, y, w, h } of renderer.hudFiles()) {
     const s = hudLinks.get(page.id).style;
-    s.left = pct(x - 3, W);
-    s.top = pct(y - 3, H);
-    s.width = pct(w + 6, W);
-    s.height = pct(h + 6, H);
+    s.left = pct(x - 5, W);
+    s.top = '0';
+    s.width = pct(w + 10, W);
+    s.height = pct(y + h + 3, H);
   }
 }
 placeHudLinks();
@@ -152,7 +174,12 @@ function tick(now) {
     game.step(STEP);
     acc -= STEP;
   }
-  renderer.draw(game);
+  // A paused game is a still picture: draw it once, then leave the screen alone until something changes.
+  const pausedFor = game.paused ? game.pauseReason : '';
+  if (!pausedFor || pausedFor !== still) {
+    renderer.draw(game);
+    still = pausedFor;
+  }
   syncHudLinks();
   requestAnimationFrame(tick);
 }
@@ -212,41 +239,51 @@ function toggleSound() {
   save({ sound: sound.enabled });
   syncSound();
 }
-soundBtn.addEventListener('click', () => {
+soundBtn.addEventListener('click', (e) => {
   toggleSound();
-  soundBtn.blur();
+  unfocus(e);
 });
 syncSound();
 
 function syncPauseButton() {
   const paused = game.paused;
   pauseBtn.textContent = paused ? 'RESUME' : 'PAUSE';
-  pauseBtn.setAttribute('aria-pressed', String(paused));
   pauseBtn.disabled = !game.canPause();
 }
-pauseBtn.addEventListener('click', () => {
+pauseBtn.addEventListener('click', (e) => {
   if (dialogOpen()) return;
   game.togglePause();
-  pauseBtn.blur();
+  unfocus(e);
 });
 syncPauseButton();
 
 // "this is annoying" shows the four links (and pauses, so reading them costs nothing); pressing
 // it again hides them.
-annoying.addEventListener('click', () => {
-  const open = !links.classList.contains('shown');
+function showLinks(open) {
   if (open) game.pause('user');
   annoying.textContent = open ? "yeah, but it's fun" : 'this is annoying';
   annoying.setAttribute('aria-expanded', String(open));
   links.classList.toggle('shown', open);
-  annoying.blur();
+}
+annoying.addEventListener('click', (e) => {
+  showLinks(!links.classList.contains('shown'));
+  unfocus(e);
 });
 for (const a of links.querySelectorAll('a[data-page]')) {
-  a.addEventListener('click', () => {
+  a.addEventListener('click', (e) => {
     game.markOpened(a.dataset.page);
-    a.blur();
+    unfocus(e);
   });
 }
+
+// The first Tab stop on the page, shown only while it has the focus: keyboard and screen-reader
+// users can go straight to the four links without playing.
+skipLink.hidden = false;
+skipLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  showLinks(true);
+  links.querySelector('a').focus();
+});
 
 // ------------------------------------------------------------------ input
 

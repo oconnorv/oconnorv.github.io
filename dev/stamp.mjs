@@ -6,7 +6,9 @@
 //   node dev/stamp.mjs --check   # exit 1 if any page has an out-of-date tag (dev/smoke.mjs runs this)
 //
 // The game's JavaScript modules import each other by plain names ('./game/game.js'); index.html
-// carries an import map that points each of those names at its versioned address.
+// carries an import map that points each of those names at its versioned address. After the map
+// comes a "modulepreload" line for each module, so the browser fetches them all at once instead of
+// finding them one by one as each file names the next.
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -29,7 +31,8 @@ function jsFiles(dir) {
 const modules = jsFiles('js').filter((f) => f !== 'js/page.js'); // page.js is a plain script, not a module
 const imports = Object.fromEntries(modules.map((f) => [`./${f}`, `./${f}?v=${version(f)}`]));
 const mapJson = JSON.stringify({ imports }, null, 2).split('\n').join('\n  ');
-const importMap = `<!-- importmap: written by dev/stamp.mjs -->\n  <script type="importmap">\n  ${mapJson}\n  </script>\n  <!-- /importmap -->`;
+const preloads = modules.map((f) => `<link rel="modulepreload" href="${f}?v=${version(f)}">`).join('\n  ');
+const importMap = `<!-- importmap: written by dev/stamp.mjs -->\n  <script type="importmap">\n  ${mapJson}\n  </script>\n  ${preloads}\n  <!-- /importmap -->`;
 
 const pages = fs.readdirSync(root).filter((f) => f.endsWith('.html')).sort();
 const changed = [];

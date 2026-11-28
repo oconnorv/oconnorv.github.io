@@ -9,6 +9,9 @@ const SCALE = 1.3;
 export const FONT_FACE = '10px VT323';
 
 // A canvas font string.
+const made = new Map();
 export function font(size) {
-  return `${Math.round(size * SCALE * 10) / 10}px ${FAMILY}`;
+  let f = made.get(size);
+  if (!f) made.set(size, (f = `${Math.round(size * SCALE * 10) / 10}px ${FAMILY}`));
+  return f;
 }

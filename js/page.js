@@ -15,6 +15,7 @@ for (const b of document.querySelectorAll('.close-tab')) {
 // show up straight away, and turns it into the page.
 const main = document.querySelector('main[data-content]');
 if (main) {
+  main.setAttribute('aria-busy', 'true'); // tells screen readers the page is still being filled in
   fetch(main.dataset.content, { cache: 'no-cache' })
     .then((r) => {
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -23,11 +24,9 @@ if (main) {
     .then((text) => { main.innerHTML = renderPage(text); })
     .catch(() => { main.innerHTML = '<p>This file didn’t load. <a href="">Try again</a>.</p>'; })
     .finally(() => {
-      assembleEmails(main);
+      main.removeAttribute('aria-busy');
       main.dataset.ready = '';
     });
-} else {
-  assembleEmails(document);
 }
 
 // The formatting, line by line:
@@ -77,7 +76,7 @@ function renderPage(text) {
           out.push('<div class="item">');
           block = 'item';
         }
-        out.push(`<p class="org">${inline(name)}</p>`);
+        out.push(`<h3 class="org">${inline(name)}</h3>`);
       }
       continue;
     }
@@ -87,7 +86,7 @@ function renderPage(text) {
       const kind = block ? 'bullets' : 'lines';
       if (list !== kind) {
         endList();
-        out.push(kind === 'lines' ? '<ul class="refs">' : '<ul>');
+        out.push(kind === 'lines' ? '<ul class="refs" role="list">' : '<ul>'); // role: Safari's screen reader forgets a list is a list once its bullets are styled away
         list = kind;
       }
       out.push(`<li>${inline(item[1])}</li>`);
@@ -121,10 +120,10 @@ function renderPage(text) {
   return out.join('\n');
 }
 
-// "name [at] example [dot] com" becomes an email link once the page is showing (assembleEmails),
-// so the address never appears whole in the text file or the page source.
-const EMAIL = /([\w.+-]+) \[at\] ([\w-]+(?: \[dot\] [\w-]+)+)/g;
-const EMAIL_ONLY = /^[\w.+-]+ \[at\] [\w-]+(?: \[dot\] [\w-]+)+$/;
+// An address written as a puzzle ("first[at]domain[dot]tld", with or without spaces) on a line of its
+// own is shown large. It stays exactly as written: it is never turned into a real address or a link,
+// so only a person who can work it out can use it.
+const EMAIL_ONLY = /^[\w.+-]+ ?\[at\] ?[\w-]+(?: ?\[dot\] ?[\w-]+)+$/;
 
 // Within a line: **bold**, *italics* and [link text](address). Everything else shows exactly as
 // written, including anything that looks like HTML.
@@ -141,9 +140,7 @@ function styled(s) {
   return s
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/\d+–\d+/g, '<span class="nowrap">$&</span>') // keep number ranges like 430–44 together
-    .replace(EMAIL, (_, user, domain) =>
-      `<span data-email-user="${user}" data-email-domain="${domain.replace(/ \[dot\] /g, '.')}">${user} [at] ${domain}</span>`);
+    .replace(/\d+–\d+/g, '<span class="nowrap">$&</span>'); // keep number ranges like 430–44 together
 }
 
 function escapeHtml(s) {
@@ -153,15 +150,4 @@ function escapeHtml(s) {
 // Links may go to web pages, email addresses, or pages on this site; anything else goes nowhere.
 function safeUrl(url) {
   return /^(https?:\/\/|mailto:|#|\.{0,2}\/|[\w-]+\.html\b)/i.test(url) ? url : '#';
-}
-
-// Email addresses are assembled here instead of written in the page, to slow down scrapers.
-function assembleEmails(root) {
-  for (const el of root.querySelectorAll('[data-email-user]')) {
-    const addr = `${el.dataset.emailUser}@${el.dataset.emailDomain}`;
-    const a = document.createElement('a');
-    a.href = `mailto:${addr}`;
-    a.textContent = addr;
-    el.replaceChildren(a);
-  }
 }

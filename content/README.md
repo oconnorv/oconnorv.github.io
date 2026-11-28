@@ -28,7 +28,7 @@ If something comes out wrong, edit the file again. Or click **History** on the f
 - `- Some text` is a list item. Inside an entry it's a bullet. Directly under a section heading it's a plain line with a hanging indent, like the publications.
 - `1. Some text`, then `2. More text` and so on, is a numbered list.
 - `**bold**`, `*italics*` and `[link text](https://example.org)` work anywhere.
-- `name [at] oconnorv [dot] com` shows as a clickable email address. Written this way, spam bots can't easily read it from this file or the page.
+- `first[at]domain[dot]tld` on a line of its own shows large, exactly as typed. It is never turned into a real address or a link: working it out is left to the reader.
 
 Also:
 

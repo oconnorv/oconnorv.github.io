@@ -4,7 +4,7 @@ The best way to reach me is email.
 
 ## Email
 
-first [at] oconnorv [dot] com
+first[at]domain[dot]tld
 
 ## Elsewhere
 

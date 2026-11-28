@@ -17,6 +17,10 @@ const HUD_FILES_X = 512;
 const DISC = ['..##..', '.####.', '######', '######', '.####.', '..##..'];
 const DISC_SHADE = ['......', '......', '.....#', '....##', '...##.', '......'];
 
+// The title screen's falling bits: the width of a column and the distance from one bit to the next.
+const RAIN_W = 12;
+const RAIN_STEP = 11;
+
 export class Renderer {
   constructor(canvas, pages) {
     this.canvas = canvas;
@@ -27,19 +31,21 @@ export class Renderer {
     this.bg = null;
     this.dark = null;
     this.reducedMotion = false;
+    this.touch = false; // true on phones and tablets: the on-screen instructions say "tap", not "press Space"
     this.rain = makeRain();
   }
 
   resize(cssW, cssH, dpr) {
     const w = Math.max(1, Math.round(cssW * dpr));
     const h = Math.max(1, Math.round(cssH * dpr));
-    if (this.canvas.width !== w || this.canvas.height !== h) {
-      this.canvas.width = w;
-      this.canvas.height = h;
-    }
+    // Same size as before: keep the canvas and every cached sprite. Returns whether anything changed.
+    if (this.canvas.width === w && this.canvas.height === h) return false;
+    this.canvas.width = w;
+    this.canvas.height = h;
     this.scale = w / W;
     this.cache.clear();
     this.bg = this.dark = null;
+    return true;
   }
 
   // Offscreen canvas at device resolution, drawn in game coordinates.
@@ -59,7 +65,7 @@ export class Renderer {
     ctx.imageSmoothingEnabled = false;
     if (!this.bg) this.bg = this.layer(W, H, (x) => drawBackground(x));
     ctx.drawImage(this.bg, 0, 0, W, H);
-    if (g.mode === 'title' || g.mode === 'win') this.drawRain(g.t);
+    if (g.mode === 'title' || g.mode === 'win') this.drawRain(this.reducedMotion ? 0 : g.t); // reduced motion: the rain stands still
 
     ctx.save();
     if (!this.reducedMotion && g.fx.shake > 0 && !g.paused) {
@@ -281,29 +287,50 @@ export class Renderer {
     this.ctx.drawImage(this.dark, 0, 0, W, H);
   }
 
+  // The falling bits behind the title. Each column is drawn once and kept as a picture, then
+  // moved down the screen: 26 pictures a frame instead of a few hundred separate characters.
   drawRain(t) {
     const ctx = this.ctx;
-    ctx.font = font(8);
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    for (const col of this.rain) {
-      const y0 = ((t * col.speed + col.offset) % (H + 200)) - 100;
-      for (let i = 0; i < col.bits.length; i++) {
-        const y = Math.round(y0 - i * 11);
-        if (y < FIELD.y + 4 || y > H) continue;
-        ctx.fillStyle = `rgba(${T.rain},${(0.2 * (1 - i / col.bits.length)).toFixed(3)})`;
-        ctx.fillText(col.bits[i], col.x, y);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(FIELD.x, FIELD.y, FIELD.w, FIELD.h);
+    ctx.clip();
+    for (let i = 0; i < this.rain.length; i++) {
+      const col = this.rain[i];
+      const tall = (col.bits.length - 1) * RAIN_STEP + RAIN_W;
+      const bottom = Math.round(((t * col.speed + col.offset) % (H + 200)) - 100) + RAIN_W / 2; // under the lowest bit
+      if (bottom < FIELD.y || bottom - tall > H) continue;
+      let spr = this.cache.get(`rain|${i}`);
+      if (!spr) {
+        spr = this.layer(RAIN_W, tall, (x) => drawRainColumn(x, col, tall));
+        this.cache.set(`rain|${i}`, spr);
       }
+      ctx.drawImage(spr, col.x - RAIN_W / 2, bottom - tall, RAIN_W, tall);
     }
+    ctx.restore();
   }
 
+  // The walls are three thin strips around the playfield, so only those strips are copied
+  // (pixel for pixel) from the walls picture, not the whole, mostly empty, thing.
   drawWalls() {
     let spr = this.cache.get('walls');
     if (!spr) {
       spr = this.layer(W, H, (x) => drawWallsSprite(x));
       this.cache.set('walls', spr);
     }
-    this.ctx.drawImage(spr, 0, 0, W, H);
+    const ctx = this.ctx;
+    const s = this.scale;
+    const top = Math.floor(HUD_H * s);
+    const inner = Math.ceil(FIELD.y * s);
+    const left = Math.ceil(FIELD.x * s);
+    const right = Math.floor((FIELD.x + FIELD.w) * s);
+    const strip = (x, y, w, h) => { if (w > 0 && h > 0) ctx.drawImage(spr, x, y, w, h, x, y, w, h); };
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    strip(0, top, spr.width, inner - top);
+    strip(0, inner, left, spr.height - inner);
+    strip(right, inner, spr.width - right, spr.height - inner);
+    ctx.restore();
   }
 
   // ------------------------------------------------------------ HUD + screens
@@ -336,15 +363,19 @@ export class Renderer {
   // Where each file sits in the scoreboard: the box around its icon and name, in game
   // coordinates. main.js puts a link over each file that has been found.
   hudFiles() {
+    let spots = this.cache.get('hudFiles'); // measured once; the cache is cleared when the size or font changes
+    if (spots) return spots;
     const ctx = this.ctx;
     ctx.font = font(12);
     let x = HUD_FILES_X;
-    return this.pages.map((page) => {
+    spots = this.pages.map((page) => {
       const w = 16 + ctx.measureText(page.hud).width; // icon, gap, name
       const spot = { page, x, y: HUD_VY - 8, w, h: 16 };
       x += w + 11;
       return spot;
     });
+    this.cache.set('hudFiles', spots);
+    return spots;
   }
 
   dim(a = 0.6) {
@@ -359,9 +390,14 @@ export class Renderer {
     text(ctx, 'A DIGITAL PRESERVATION BRICK-BREAKER', W / 2, 212, 16, T.text, 'center', true);
     text(ctx, '4 FILES ARE HIDDEN IN THE BRICKS.', W / 2, 252, 18, T.gold, 'center', true);
     text(ctx, 'RECOVER THEM.', W / 2, 278, 18, T.gold, 'center', true);
-    text(ctx, 'PRESS SPACE OR CLICK TO START', W / 2, 330, 22, T.text, 'center', true);
-    if (g.maxLevel > 1) text(ctx, `PRESS C TO CONTINUE FROM LEVEL ${String(g.maxLevel).padStart(2, '0')}`, W / 2, 364, 16, T.accent, 'center', true);
-    const rows = [
+    text(ctx, this.touch ? 'TAP TO START' : 'PRESS SPACE OR CLICK TO START', W / 2, 330, 22, T.text, 'center', true);
+    if (g.maxLevel > 1 && !this.touch) text(ctx, `PRESS C TO CONTINUE FROM LEVEL ${String(g.maxLevel).padStart(2, '0')}`, W / 2, 364, 16, T.accent, 'center', true);
+    const rows = this.touch ? [
+      ['DRAG', 'MOVE'],
+      ['TAP', 'LAUNCH + FIRE'],
+      ['PAUSE BUTTON', 'PAUSE'],
+      ['SOUND BUTTON', 'SOUND ON/OFF'],
+    ] : [
       ['ARROWS / A D', 'MOVE'],
       ['SPACE / CLICK', 'LAUNCH + FIRE'],
       ['P', 'PAUSE'],
@@ -382,16 +418,16 @@ export class Renderer {
       panel(ctx, 130, y - 66, 540, 132);
       text(ctx, b.title, W / 2, y - 40, 16, T.accent, 'center', true);
       bigText(ctx, b.sub, W / 2, y - 3, 28, T.text, 496);
-      text(ctx, 'SPACE / CLICK TO LAUNCH', W / 2, y + 40, 14, T.soft, 'center', true);
+      text(ctx, this.touch ? 'TAP TO LAUNCH' : 'SPACE / CLICK TO LAUNCH', W / 2, y + 40, 14, T.soft, 'center', true);
     } else if (b.kind === 'clear') {
       bigText(ctx, b.title, W / 2, 326, 34, T.gold);
       text(ctx, b.sub, W / 2, 374, 18, T.text, 'center', true);
     } else if (b.kind === 'life') {
       text(ctx, b.title, W / 2, 396, 22, T.lifeText, 'center', true);
-      text(ctx, b.sub, W / 2, 428, 14, T.softer, 'center', true);
+      text(ctx, this.touch ? 'TAP TO LAUNCH' : b.sub, W / 2, 428, 14, T.softer, 'center', true);
     } else if (b.kind === 'pill') {
       text(ctx, b.title, W / 2, 464, 16, color(b.color), 'center', true);
-      text(ctx, b.sub, W / 2, 490, 14, T.text, 'center', true);
+      text(ctx, this.touch ? b.sub.replace('SPACE', 'TAP') : b.sub, W / 2, 490, 14, T.text, 'center', true); // "SPACE TO FIRE" is "TAP TO FIRE" on a phone
     }
     ctx.globalAlpha = 1;
   }
@@ -400,7 +436,7 @@ export class Renderer {
     this.dim(g.pauseReason === 'file' ? 0.75 : 0.62);
     if (g.pauseReason === 'file') return; // the "file recovered" dialog sits on top
     bigText(this.ctx, 'PAUSED', W / 2, 286, 48, T.text);
-    text(this.ctx, 'PRESS SPACE TO RESUME', W / 2, 346, 20, T.accent, 'center', true);
+    text(this.ctx, this.touch ? 'TAP THE RESUME BUTTON' : 'PRESS SPACE TO RESUME', W / 2, 346, 20, T.accent, 'center', true);
   }
 
   drawGameOver(g) {
@@ -409,7 +445,7 @@ export class Renderer {
     bigText(ctx, 'CHECKSUM MISMATCH', W / 2, 236, 36, T.danger);
     text(ctx, 'GAME OVER', W / 2, 288, 18, T.dangerSoft, 'center', true);
     text(ctx, `SCORE ${g.score}`, W / 2, 330, 20, T.text, 'center', true);
-    text(ctx, `SPACE / CLICK: CONTINUE FROM LEVEL ${String(g.levelIndex + 1).padStart(2, '0')}`, W / 2, 392, 16, T.accent, 'center', true);
+    text(ctx, `${this.touch ? 'TAP' : 'SPACE / CLICK'}: CONTINUE FROM LEVEL ${String(g.levelIndex + 1).padStart(2, '0')}`, W / 2, 392, 16, T.accent, 'center', true);
     text(ctx, '(YOUR SCORE STARTS OVER)', W / 2, 422, 14, T.soft, 'center', true);
   }
 
@@ -420,7 +456,7 @@ export class Renderer {
     text(ctx, 'ALL 12 LEVELS CLEARED.', W / 2, 276, 18, T.text, 'center', true);
     text(ctx, 'EVERY BIT ACCOUNTED FOR.', W / 2, 302, 18, T.text, 'center', true);
     text(ctx, `FINAL SCORE ${g.score}`, W / 2, 346, 22, T.accent, 'center', true);
-    text(ctx, 'SPACE / CLICK TO PLAY AGAIN', W / 2, 404, 18, T.text, 'center', true);
+    text(ctx, this.touch ? 'TAP TO PLAY AGAIN' : 'SPACE / CLICK TO PLAY AGAIN', W / 2, 404, 18, T.text, 'center', true);
   }
 }
 
@@ -435,6 +471,17 @@ function makeRain() {
     cols.push({ x: Math.round(30 + i * 29.5 + r() * 10), speed: 30 + r() * 60, offset: r() * 800, bits: Array.from({ length: len }, () => (r() < 0.5 ? '0' : '1')) });
   }
   return cols;
+}
+
+// One column of falling bits, brightest at the bottom and fading out towards the top.
+function drawRainColumn(ctx, col, tall) {
+  ctx.font = font(8);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (let i = 0; i < col.bits.length; i++) {
+    ctx.fillStyle = `rgba(${T.rain},${(0.2 * (1 - i / col.bits.length)).toFixed(3)})`;
+    ctx.fillText(col.bits[i], RAIN_W / 2, tall - RAIN_W / 2 - i * RAIN_STEP);
+  }
 }
 
 // Small pixel-font text. `shadow` adds a hard 1px drop-shadow.
