@@ -57,7 +57,7 @@ Worked with the Vice President of Learning Technology and Innovation to improve 
 - Managed launch of new degree catalog, resulting in a 286% increase in user sessions and 70% increase in new vs. returning users
 - Headed data synthesis for over 40 structured data fields for 310 programs with 4 other UNC General Administration departments and third-party vendors
 - Authored and implemented new online Privacy Policy for all UNC General Administration websites
-- Performed research and drafting on applications for U.S. Department of Education and National Governor’s Association grants
+- Performed research and drafting on applications for U.S. Department of Education and National Governors Association grants
 
 **ESOPI² Electronic Records Management Fellow**
 Consulted for Orange County, NC Information Technology and the State Archives of North Carolina on information policy and training for public data and electronic records management.
