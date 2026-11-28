@@ -1,5 +1,7 @@
 # oconnorv.com
 
+**Play it: https://oconnorv.com**
+
 The home page is **BITSTREAM**, a digital preservation brick-breaker. Four pages are hidden in the
 bricks: About, CV, CV of Failures and Contact. Catching one pauses the game and offers to open it
 in a new tab. Plain HTML, CSS and JavaScript: no build step, no dependencies.

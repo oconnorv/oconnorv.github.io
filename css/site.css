@@ -346,7 +346,13 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
 }
 /* While a page's text file loads, keep the footer from jumping up and back down. */
 .panel[data-content]:not([data-ready]) { min-height: 60vh; }
-.page-foot { margin-top: 22px; text-align: center; font: .75rem/1.6 var(--ui); letter-spacing: .5px; color: var(--foot); }
+/* Links from one file page to the others, so nobody has to go back through the game. */
+.page-nav { margin-top: 26px; display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 6px 18px; font: 400 calc(.8125rem * var(--display-scale))/1.4 var(--display); letter-spacing: 1px; text-transform: uppercase; }
+.page-nav-label { color: var(--filename); }
+.page-nav a { text-decoration: none; padding: 4px 2px; }
+.page-nav a:hover { text-decoration: underline; }
+.page-nav a[aria-current] { color: var(--text); text-decoration: underline; }
+.page-foot { margin-top: 14px; text-align: center; font: .75rem/1.6 var(--ui); letter-spacing: .5px; color: var(--foot); }
 /* 404 page */
 .page-404 { text-align: center; padding-top: 8vh; }
 .page-404 .panel { margin-top: 24px; }
@@ -359,7 +365,7 @@ body.layout-bottom .links { flex-direction: row; gap: 18px; }
 @media print {
   body { background: #fff !important; color: #000; font: 11pt/1.45 Georgia, 'Times New Roman', serif; }
   .page { max-width: none; padding: 0; }
-  .page-head .btn, .page-foot { display: none !important; }
+  .page-head .btn, .page-foot, .page-nav { display: none !important; }
   .page-head { border-color: #000; }
   .wordmark, .page h1 { color: #000; text-shadow: none; font-family: Georgia, serif; text-transform: none; }
   .panel { border: 0; box-shadow: none; background: none; padding: 0; }

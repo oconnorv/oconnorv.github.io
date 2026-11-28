@@ -1,4 +1,4 @@
-import { W } from './constants.js';
+import { W, H, CONTINUE_BAND } from './constants.js';
 
 // Keyboard, mouse and touch.
 // Space (also W, the up arrow, or a click/tap) launches the ball and fires lasers, and continues
@@ -57,6 +57,10 @@ export function attachInput({ game, canvas, sound, onPause, onContinue, onEscape
     sound.unlock();
     if (isDialogOpen() || game.paused) return;
     game.input.pointerX = toGameX(e.clientX);
+    // On the title screen, the "continue from level N" line is a button of its own.
+    const r = canvas.getBoundingClientRect();
+    const y = ((e.clientY - r.top) / r.height) * H;
+    if (game.mode === 'title' && game.maxLevel > 1 && y >= CONTINUE_BAND[0] && y <= CONTINUE_BAND[1]) return game.continueGame();
     game.input.fire = true;
     game.action();
     try { canvas.setPointerCapture(e.pointerId); } catch { /* ignore */ }

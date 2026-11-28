@@ -2,9 +2,13 @@
 
 // [CLOSE TAB] closes this tab and drops the visitor back on the paused game.
 // If the browser won't let a script close the tab (e.g. the page was opened directly), go home instead.
+// A tab the game opened has nothing to go back to. If this tab has a history, the page was reached
+// some other way and closing it would be a surprise, so the button says where it goes instead.
+const ownTab = history.length <= 1;
 for (const b of document.querySelectorAll('.close-tab')) {
+  if (!ownTab) b.textContent = 'BACK TO THE GAME';
   b.addEventListener('click', () => {
-    window.close();
+    if (ownTab) window.close();
     setTimeout(() => { location.href = './'; }, 200);
   });
 }

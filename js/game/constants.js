@@ -34,4 +34,8 @@ export const MAX_LIVES = 7;
 export const SERVE_AUTO = 6;           // a served ball launches itself after this many seconds
 export const CATCH_AUTO = 3;           // a ball caught by INGEST launches itself after this many seconds
 
+// The "continue from level N" line on the title screen: tapping or clicking between these heights picks it.
+export const CONTINUE_Y = 366;
+export const CONTINUE_BAND = [346, 388];
+
 export const STEP = 1 / 120;           // fixed simulation step

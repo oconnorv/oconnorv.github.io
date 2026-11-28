@@ -212,6 +212,23 @@ try {
     }
     ok(problems.length === 0, `each file page shows all of its content/*.md text${problems.length ? ` (${problems.join('; ')})` : ''}`);
 
+    // Each file page links to the other three (and marks itself), so nobody has to go back through the game.
+    const navs = [];
+    for (const name of ['cv', 'failures', 'about', 'contact']) {
+      await open(page, `${name}.html`);
+      const nav = await page.evaluate(() => ({
+        all: [...document.querySelectorAll('.page-nav a')].map((a) => a.getAttribute('href')).join(' '),
+        here: [...document.querySelectorAll('.page-nav a[aria-current="page"]')].map((a) => a.getAttribute('href')).join(' '),
+        preview: ['og:title', 'og:description', 'og:image', 'og:url'].every((k) => document.querySelector(`meta[property="${k}"]`)?.content),
+      }));
+      if (nav.all !== 'about.html cv.html failures.html contact.html' || nav.here !== `${name}.html` || !nav.preview) navs.push(name);
+    }
+    ok(navs.length === 0, `each file page links to all four files, marks itself, and has a link preview${navs.length ? ` (wrong: ${navs.join(', ')})` : ''}`);
+    await open(page, 'cv.html');
+    await page.click('.page-nav a[href="about.html"]');
+    await page.waitForSelector('main[data-ready]');
+    ok(page.url().endsWith('/about.html') && (await page.textContent('.close-tab')) === 'BACK TO THE GAME', 'a file page reached from another one says BACK TO THE GAME, not CLOSE TAB');
+
     await open(page, 'contact.html');
     // The address is a puzzle for a person to work out: shown as typed, never a real address or a link.
     const mail = await page.evaluate(() => ({
@@ -291,6 +308,15 @@ try {
     const page = await ctx.newPage();
     await page.goto(base + '?debug=1', { waitUntil: 'networkidle' });
     const g = (expr) => page.evaluate(`(() => { const game = window.__bitstream.game; return ${expr}; })()`);
+
+    // A returning visitor can pick up at the highest level reached: C, or a click/tap on that line of the title screen.
+    await page.evaluate(() => localStorage.setItem('bitstream.v1', JSON.stringify({ maxLevel: 5 })));
+    await page.reload({ waitUntil: 'networkidle' });
+    const box = await page.locator('#game').boundingBox();
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height * (366 / 600));
+    ok((await g('game.mode')) === 'play' && (await g('game.levelIndex')) === 4, 'clicking "continue from level 05" on the title screen starts at level 5');
+    await page.evaluate(() => localStorage.removeItem('bitstream.v1'));
+    await page.reload({ waitUntil: 'networkidle' });
 
     await page.keyboard.press('Space');
     ok((await g('game.mode')) === 'play', 'Space starts the game');

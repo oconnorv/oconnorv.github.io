@@ -391,7 +391,10 @@ export class Renderer {
     text(ctx, '4 FILES ARE HIDDEN IN THE BRICKS.', W / 2, 252, 18, T.gold, 'center', true);
     text(ctx, 'RECOVER THEM.', W / 2, 278, 18, T.gold, 'center', true);
     text(ctx, this.touch ? 'TAP TO START' : 'PRESS SPACE OR CLICK TO START', W / 2, 330, 22, T.text, 'center', true);
-    if (g.maxLevel > 1 && !this.touch) text(ctx, `PRESS C TO CONTINUE FROM LEVEL ${String(g.maxLevel).padStart(2, '0')}`, W / 2, 364, 16, T.accent, 'center', true);
+    if (g.maxLevel > 1) { // input.js treats a tap or click on this line as "continue"
+      const words = this.touch ? `TAP HERE TO CONTINUE FROM LEVEL ${String(g.maxLevel).padStart(2, '0')}` : `PRESS C OR CLICK HERE TO CONTINUE FROM LEVEL ${String(g.maxLevel).padStart(2, '0')}`;
+      text(ctx, `[ ${words} ]`, W / 2, C.CONTINUE_Y, 16, T.accent, 'center', true);
+    }
     const rows = this.touch ? [
       ['DRAG', 'MOVE'],
       ['TAP', 'LAUNCH + FIRE'],
